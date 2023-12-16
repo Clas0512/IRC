@@ -123,9 +123,15 @@ void	Server::parseAndAdd(int _fd, char *buffer)
 	}
 	if (sign == 2)
 	{
-		std::string messg = ":localhost 001 kivircikali2 :Welcome to the Internet Relay Network " + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + this->getServerName() + "\r\n";
-		error(send(_fd, messg.c_str(), 4097, 0), "Couldn't send", 31);
+		// macroyla olusturulacak
+		std::string messg = ": 001 : " + this->users[i].getUserName() + " Welcome to the Internet Relay Network " + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + this->getServerName() + "\r\n"; 
+		sendMessage(_fd, messg);
 	}
+}
+
+void Server::sendMessage(int fd, std::string messg)
+{
+	error(send(fd, messg.c_str(), messg.size() + 1, 0), "Couldn't send!", 31);
 }
 
 void Server::error(int value, std::string func, int errorNo)

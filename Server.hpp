@@ -35,6 +35,7 @@ class Server {
         void				start();
 		void				error(int value, std::string func, int errorNo);
 		void				parseAndAdd(int _fd, char *buffer);
+		void				sendMessage(int fd, std::string messg);
 };
 
 #endif
