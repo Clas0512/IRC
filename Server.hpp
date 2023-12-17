@@ -12,7 +12,7 @@
 
 class User;
 
-struct userInfo{
+struct userInfo {
 	std::string userName;
 	std::string nickName;
 };
@@ -32,6 +32,7 @@ class Server {
         void				addUser(int fd);
         std::vector<User>	&getUsers();
         std::string			getServerName() const;
+        int					checkPassword(std::string &inputPass) const;
         void				start();
 		void				error(int value, std::string func, int errorNo);
 		void				parseAndAdd(int _fd, char *buffer);
