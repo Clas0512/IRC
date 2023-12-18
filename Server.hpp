@@ -10,6 +10,8 @@
 # include <netinet/in.h>
 # include <poll.h>
 
+# define FLAG_CONTINUE 1
+
 class User;
 
 struct userInfo {
@@ -24,7 +26,7 @@ class Server {
 		std::string			password;
         std::string			serverName;
         std::vector<User>	users;
-		struct sockaddr_in socketAddr;
+		sockaddr_in socketAddr;
 		socklen_t socketAddrLen;
     public:
         Server(char **av);
@@ -32,10 +34,10 @@ class Server {
         void				addUser(int fd);
         std::vector<User>	&getUsers();
         std::string			getServerName() const;
-        int					checkPassword(std::string &inputPass) const;
         void				start();
 		void				error(int value, std::string func, int errorNo);
-		void				parseAndAdd(int _fd, char *buffer);
+		void				error(int value, std::string func, int errorNo, int FLAG);
+		void				parseAndAdd(int fd, char *buffer);
 		void				sendMessage(int fd, std::string messg);
 };
 

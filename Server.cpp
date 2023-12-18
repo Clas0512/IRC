@@ -53,7 +53,7 @@ void Server::start()
 			if (pollFds[0].revents & POLLIN) // ----------------**********************----------**********-*-*-*-*-*-**
 			{
 				int clientFd = accept(this->fd, reinterpret_cast<sockaddr*>(&this->socketAddr), reinterpret_cast<socklen_t*>(&this->socketAddrLen));
-				error(fcntl(clientFd, F_SETFL, O_NONBLOCK), "Couldn't accept!", 107);
+				error(fcntl(clientFd, F_SETFL, O_NONBLOCK), "in fcntl function!", 107);
 				pollfd temp;
 				temp.fd = clientFd;
 				temp.events = POLLIN;
@@ -65,24 +65,27 @@ void Server::start()
 			{
 				char buffer[1024];
 				memset(buffer, 0, 1024);
-				if (pollFds[i].revents == POLLIN)
+				if (pollFds[i].revents & POLLIN)
 				{
 					error(recv(pollFds[i].fd, buffer, 1024, MSG_EOF), "Couldn't recieve!", 108);
 					std::cout << buffer;
+					parseAndAdd(pollFds[i].fd, buffer);
 				}
-				parseAndAdd(pollFds[i].fd, buffer);
 			}
 		}
 	}
 }
 
-void	Server::parseAndAdd(int _fd, char *buffer)
+void	Server::parseAndAdd(int fd, char *buffer)
 {
-	int i;
+	size_t i;
 	std::string buff(buffer);
 	for (i = 0; i < this->users.size(); i++)
-		if (this->users[i].getFd() == _fd)
+		if (this->users[i].getFd() == fd)
 			break ;
+	
+	std::cout << "i: " << i << std::endl; //-----------------------------------------
+	
 	std::istringstream ss(buff);
 	std::vector<std::string> words;
 	std::string word;
@@ -97,7 +100,8 @@ void	Server::parseAndAdd(int _fd, char *buffer)
 		if (*s == "PASS" && (s + 1) != e)
 		{
 			s++;
-			sign += checkPassword(*s);
+			error(this->users[i].checkPassword(*s, this->password, i), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
+			sign++;
 		}
 		else if (*s == "NICK" && (s + 1) != e)
 		{
@@ -120,7 +124,7 @@ void	Server::parseAndAdd(int _fd, char *buffer)
 	{
 		// macroyla olusturulacak
 		std::string messg = ": 001 : " + this->users[i].getUserName() + " Welcome to the Internet Relay Network " + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + this->getServerName() + "\r\n"; 
-		sendMessage(_fd, messg);
+		sendMessage(fd, messg);
 	}
 }
 
@@ -134,7 +138,8 @@ void Server::error(int value, std::string func, int errorNo)
 	if (value < 0)
 	{
 		std::cout << "Error: " << func << std::endl;
-		exit(errno);
+		if (errorNo != FLAG_CONTINUE)
+			exit(errorNo);
 	}
 }
 
@@ -142,9 +147,4 @@ std::vector<User> &Server::getUsers() { return (users); }
 
 std::string Server::getServerName() const { return (serverName); }
 
-int	Server::checkPassword(std::string &inputPass) const
-{
-	if (inputPass == this->password)
-		return (1);
-	return (0);
-}
+
