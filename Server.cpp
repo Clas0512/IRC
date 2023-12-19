@@ -53,7 +53,7 @@ void Server::start()
 			if (pollFds[0].revents & POLLIN) // ----------------**********************----------**********-*-*-*-*-*-**
 			{
 				int clientFd = accept(this->fd, reinterpret_cast<sockaddr*>(&this->socketAddr), reinterpret_cast<socklen_t*>(&this->socketAddrLen));
-				error(fcntl(clientFd, F_SETFL, O_NONBLOCK), "Couldn't accept!", 107);
+				error(fcntl(clientFd, F_SETFL, O_NONBLOCK), "in fcntl function!", 107);
 				pollfd temp;
 				temp.fd = clientFd;
 				temp.events = POLLIN;
@@ -65,86 +65,145 @@ void Server::start()
 			{
 				char buffer[1024];
 				memset(buffer, 0, 1024);
-				if (pollFds[i].revents == POLLIN)
+				if (pollFds[i].revents & POLLIN)
 				{
 					error(recv(pollFds[i].fd, buffer, 1024, MSG_EOF), "Couldn't recieve!", 108);
-					std::cout << buffer;
+					//parseAndAdd(pollFds[i].fd, buffer);
+					parse(pollFds[i].fd, buffer);
 				}
-				parseAndAdd(pollFds[i].fd, buffer);
 			}
 		}
 	}
 }
 
-void	Server::parseAndAdd(int _fd, char *buffer)
-{
-	int i;
-	std::string buff(buffer);
-	for (i = 0; i < this->users.size(); i++)
-		if (this->users[i].getFd() == _fd)
-			break ;
-	std::istringstream ss(buff);
-	std::vector<std::string> words;
-	std::string word;
-    while (ss >> word) {
-        words.push_back(word);
-    }
-	std::vector<std::string>::iterator s = words.begin();
-	std::vector<std::string>::iterator e = words.end();
-	int sign = 0;
-	while (s != e)
-	{
-		if (*s == "PASS" && (s + 1) != e)
-		{
-			s++;
-			sign += checkPassword(*s);
-		}
-		else if (*s == "NICK" && (s + 1) != e)
-		{
-			s++;
-			std::string nick(*s);
-			this->users[i].setNickName(nick);
-			sign++;
-		}
 
-		else if (*s == "USER" && (s + 1) != e)
-		{
-			s++;
-			std::string user(*s);
-			this->users[i].setUserName(user);
-			sign++;
-		}
-		s++;
-	}
-	if (sign == 3)
-	{
-		// macroyla olusturulacak
-		std::string messg = ": 001 : " + this->users[i].getUserName() + " Welcome to the Internet Relay Network " + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + this->getServerName() + "\r\n"; 
-		sendMessage(_fd, messg);
-	}
-}
+// void	Server::parseAndAdd(int fd, char *buffer)
+// {
+// 	size_t i;
+// 	std::string buff(buffer);
+// 	for (i = 0; i < this->users.size(); i++)
+// 		if (this->users[i].getFd() == fd)
+// 			break ;
+	
+// 	std::istringstream ss(buff);
+// 	std::vector<std::string> words;
+// 	std::string word;
+//     while (ss >> word) {
+//         words.push_back(word);
+//     }
+// 	std::vector<std::string>::iterator s = words.begin();
+// 	std::vector<std::string>::iterator e = words.end();
+// 	int sign = 0;
+// 	Execute exec;
+// 	while (s != e)
+// 	{
+		
+// 		// if (s == exec.commands[i].first)
+// 		// {
+// 		// 	exec.commands[i].second(fd, this, *s);
+// 		// 	sign++;
+// 		// }
+// 		if (*s == "PASS" && (s + 1) != e)
+// 		{
+// 			s++;
+// 			error(this->users[i].checkPassword(*s, this->password), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
+// 			sign++;
+// 		}
+// 		else if (*s == "NICK" && (s + 1) != e)
+// 		{
+// 			s++;
+// 			std::string nick(*s);
+// 			this->users[i].setNickName(nick);
+// 			sign++;
+// 		}
+
+// 		else if (*s == "USER" && (s + 1) != e)
+// 		{
+// 			s++;
+// 			std::string user(*s);
+// 			this->users[i].setUserName(user);
+// 			sign++;
+// 		}
+// 		s++;
+// 	}
+// 	if (sign == 3)
+// 	{
+// 		// macroyla olusturulacak
+// 		std::string messg = ": 001 : " + this->users[i].getUserName() + " Welcome to the Internet Relay Network " + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + this->getServerName() + "\r\n"; 
+// 		sendMessage(fd, messg);
+// 	}
+// }
 
 void Server::sendMessage(int fd, std::string messg)
 {
 	error(send(fd, messg.c_str(), messg.size() + 1, 0), "Couldn't send!", 31);
 }
 
-void Server::error(int value, std::string func, int errorNo)
-{
-	if (value < 0)
-	{
-		std::cout << "Error: " << func << std::endl;
-		exit(errno);
-	}
-}
-
 std::vector<User> &Server::getUsers() { return (users); }
 
 std::string Server::getServerName() const { return (serverName); }
 
-int	Server::checkPassword(std::string &inputPass) const
+std::string Server::getPassword() const { return (password); }
+
+User &Server::getUser(int fd)
 {
-	if (inputPass == this->password)
-		return (1);
-	return (0);
+	for (size_t i = 0; i < users.size(); i++)
+		if (users[i].getFd() == fd)
+			return (users[i]);
+	return (users[0]); // dummy return
+}
+
+
+//UTILS
+
+void	Server::parse(int fd, std::string buffer)
+{
+	size_t fdIndex;
+	for (fdIndex = 0; fdIndex < this->users.size(); fdIndex++)
+		if (this->users[fdIndex].getFd() == fd)
+			break ;
+	string trimmed = buffer.substr(0, buffer.find("\r\n"));
+	std::vector<string> message = parseBuffer(trimmed, ' ');
+	for(size_t i = 0; i < message.size(); i++)
+		std::cout << message[i] << std::endl;
+	compare(message, trimmed, fdIndex);
+	if (this->getUser(fd).getAuth() == true)
+	{
+		std::string messg = ": 001 : " + this->getUser(fd).getUserName() + " Welcome to the Internet Relay Network " + this->getUser(fd).getNickName() + "!" + this->getUser(fd).getUserName() + "@" + this->getServerName() + "\r\n"; 
+ 		sendMessage(fd, messg);
+	}
+}
+
+void Server::compare(std::vector<string> message, string trimmed, int fdIndex)
+{
+	Execute exec;
+	for (size_t i = 0; i < exec.getCommands().size(); i++)
+	{
+		for(size_t j = 0; j < message.size(); j++)
+		{
+			if (exec.getCommands()[i].first == message[j])
+			{
+				exec.getCommands()[i].second(fdIndex, this, message[j + 1], trimmed);
+				return ;
+			}
+		}
+	}
+}
+
+vector<string> Server::parseBuffer(const string &buffer, char delimiter)
+{
+    std::vector<std::string> tokens;
+    std::string token;
+    size_t start = 0, end = 0;
+
+    while ((end = buffer.find(delimiter, start)) != std::string::npos) {
+        token = buffer.substr(start, end - start);
+        tokens.push_back(token);
+        start = end + 1;
+    }
+
+    token = buffer.substr(start);
+    tokens.push_back(token);
+
+    return tokens;
 }
