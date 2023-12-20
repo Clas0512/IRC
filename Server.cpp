@@ -162,15 +162,26 @@ void	Server::parse(int fd, std::string buffer)
 	for (fdIndex = 0; fdIndex < this->users.size(); fdIndex++)
 		if (this->users[fdIndex].getFd() == fd)
 			break ;
+	bool flag = false;
 	string trimmed = buffer.substr(0, buffer.find("\r\n"));
 	std::vector<string> message = parseBuffer(trimmed, ' ');
 	for(size_t i = 0; i < message.size(); i++)
 		std::cout << message[i] << std::endl;
-	compare(message, trimmed, fdIndex);
 	if (this->getUser(fd).getAuth() == true)
+	{
+		cout << "buraya girdi2" << endl;
+		compare(message, trimmed, fdIndex);
+	}
+	else
+	{
+		cout << "buraya girdi3" << endl;
+		compare(message, trimmed, fdIndex);
+	}
+	if (this->getUser(fd).getAuth() == true && flag == false)
 	{
 		std::string messg = ": 001 : " + this->getUser(fd).getUserName() + " Welcome to the Internet Relay Network " + this->getUser(fd).getNickName() + "!" + this->getUser(fd).getUserName() + "@" + this->getServerName() + "\r\n"; 
  		sendMessage(fd, messg);
+		flag = true;
 	}
 }
 
@@ -179,13 +190,10 @@ void Server::compare(std::vector<string> message, string trimmed, int fdIndex)
 	Execute exec;
 	for (size_t i = 0; i < exec.getCommands().size(); i++)
 	{
-		for(size_t j = 0; j < message.size(); j++)
+		if (exec.getCommands()[i].first == message[0])
 		{
-			if (exec.getCommands()[i].first == message[j])
-			{
-				exec.getCommands()[i].second(fdIndex, this, message[j + 1], trimmed);
-				return ;
-			}
+			exec.getCommands()[i].second(fdIndex, this, message[1], trimmed);
+			return ;
 		}
 	}
 }
