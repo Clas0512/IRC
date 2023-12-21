@@ -26,6 +26,7 @@ class Server {
 		std::string			password;
         std::string			serverName;
         std::vector<User>	users;
+        std::vector<Channel>	channels;
 		sockaddr_in socketAddr;
 		socklen_t socketAddrLen;
     public:
@@ -36,9 +37,12 @@ class Server {
         std::string			getServerName() const;
         void				start();
 		void				error(int value, std::string func, int errorNo);
-		void				error(int value, std::string func, int errorNo, int FLAG);
 		void				parseAndAdd(int fd, char *buffer);
 		void				sendMessage(int fd, std::string messg);
+		void				createChannel(std::string id, User &admin, std::string password);
+		long				getUserIndexByFd(int fd);
+		long				getChannelIndexByFd(std::string id) const;
+		void				joinChannel(std::string id, User &nickname);
 };
 
 #endif

@@ -10,11 +10,16 @@ class User;
 class Channel
 {
 	private:
-		//User				owner;
-		std::string			name;
+		const std::string	id;
+		const std::string	password;
 		std::vector<User>	users;
 		std::vector<User>	operators;
 	public:
+		Channel(std::string _id, User _admin, std::string _password);
+		std::string	getId(void) const;
+		bool	checkPassword(std::string password) const;
+		std::vector<User> getUsers() const;
+		void	addUser(User &newUser);
 };
 
 #endif

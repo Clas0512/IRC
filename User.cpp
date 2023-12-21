@@ -42,4 +42,14 @@ int	User::checkPassword(std::string &inputPass, std::string password, int i)
 	return (-1);
 }
 
+void	User::addChannel(Channel newChannel)
+{
+	userInChannels.push_back(newChannel);
+}
+
+std::vector<Channel>	User::getChannels(void) const
+{
+	return (this->userInChannels);
+}
+
 User::~User() {}

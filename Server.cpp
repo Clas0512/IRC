@@ -28,6 +28,7 @@ Server::~Server() {}
 void Server::addUser(int fd)
 {
 	users.push_back(User(fd));
+	std::cout << users[0].getUserName() << std::endl;
 }
 
 void Server::start()
@@ -78,14 +79,14 @@ void Server::start()
 
 void	Server::parseAndAdd(int fd, char *buffer)
 {
-	size_t i;
+	bool isJoin = false;
+	long i = getUserIndexByFd(fd);
+	if (i == -1)
+	{
+		perror("Filedescriptor is not valid. Olamaaz programı durdurun !!!?!");
+		exit(1111);
+	}
 	std::string buff(buffer);
-	for (i = 0; i < this->users.size(); i++)
-		if (this->users[i].getFd() == fd)
-			break ;
-	
-	std::cout << "i: " << i << std::endl; //-----------------------------------------
-	
 	std::istringstream ss(buff);
 	std::vector<std::string> words;
 	std::string word;
@@ -110,7 +111,6 @@ void	Server::parseAndAdd(int fd, char *buffer)
 			this->users[i].setNickName(nick);
 			sign++;
 		}
-
 		else if (*s == "USER" && (s + 1) != e)
 		{
 			s++;
@@ -118,12 +118,77 @@ void	Server::parseAndAdd(int fd, char *buffer)
 			this->users[i].setUserName(user);
 			sign++;
 		}
+
+		// GECİCİ KOMUTLAR
+
+
+		if (*s == "USERLIST")
+		{
+			std::vector<User> temp = getUsers();
+			std::vector<User>::iterator b = temp.begin();
+			std::vector<User>::iterator e = temp.end();
+			while (b != e)
+			{
+				std::string tempMessg((*b).getUserName());
+				std::cout << (*b).getUserName() << std::endl;
+				sendMessage(fd, tempMessg);
+				b++;
+			}
+		}
+		
+		if (*s == "JOIN" && (s + 1) != e && (s + 2) != e)
+		{
+			s++;
+			int channelId = getChannelIndexByFd(*s);
+			if (!((*s).size() > 2 && (*s)[0] == '#'))
+			{
+				std::cout << "Channel id is not valid!" << std::endl;
+				return ;
+			}
+			if (channelId == -1)
+				createChannel(*s, users[getUserIndexByFd(fd)], *(s + 1));
+			else
+			{
+				if (channels[channelId].checkPassword(*(s + 1)) == false)
+				{
+					std::cout << "Invalid password!" << std::endl;
+					break ;
+				}
+				joinChannel(*s, users[getUserIndexByFd(fd)]);
+				isJoin = true;
+			}
+		}
+		
+		if (*s == "CLIST" && (s + 1) != e)
+		{
+			int id = getChannelIndexByFd(*(s + 1));
+			error(id, "Channel id is not valid!", FLAG_CONTINUE);
+			if (id == -1)
+				break ;
+			std::vector<User> temp = channels[id].getUsers();
+			std::vector<User>::iterator b = temp.begin();
+			std::vector<User>::iterator e = temp.end();
+			while (b != e)
+			{
+				std::string tempMessg((*b).getUserName());
+				std::cout << (*b).getUserName() << std::endl;
+				sendMessage(fd, tempMessg);
+				b++;
+			}
+		}
+
+		// ------------------------------------------------------
 		s++;
 	}
 	if (sign == 3)
 	{
 		// macroyla olusturulacak
 		std::string messg = ": 001 : " + this->users[i].getUserName() + " Welcome to the Internet Relay Network " + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + this->getServerName() + "\r\n"; 
+		sendMessage(fd, messg);
+	}
+	if (isJoin == true)
+	{
+		std::string messg = ": 332 : " + this->users[i].getUserName() + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " " + ":topic" + "\r\n";
 		sendMessage(fd, messg);
 	}
 }
@@ -143,8 +208,42 @@ void Server::error(int value, std::string func, int errorNo)
 	}
 }
 
+long	Server::getUserIndexByFd(int fd)
+{
+	for (size_t i = 0; i < users.size(); i++)
+		if (users[i].getFd() == fd)
+			return (i);
+	return (-1);
+}
+
+long	Server::getChannelIndexByFd(std::string id) const
+{
+	for (size_t i = 0; i < channels.size(); i++)
+	{
+		if (channels[i].getId() == id)
+			return (i);
+	}
+	return (-1);
+}
+
 std::vector<User> &Server::getUsers() { return (users); }
 
 std::string Server::getServerName() const { return (serverName); }
 
+void	Server::createChannel(std::string id, User &admin, std::string password)
+{
+	this->channels.push_back(Channel(id, admin, password));
+}
 
+void	Server::joinChannel(std::string id, User &nickname)
+{
+	int idf = getChannelIndexByFd(id);
+	std::vector<User> temp = this->channels[idf].getUsers();
+	for (size_t i = 0; i < temp.size(); i++)
+		if (temp[i].getFd() == nickname.getFd())
+		{
+			std::cout << "User is already exist!" << std::endl;
+			return ;
+		}
+	this->channels[idf].addUser(nickname);
+}

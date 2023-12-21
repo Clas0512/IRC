@@ -20,13 +20,15 @@ class User {
     public:
         User(int fd);
         ~User();
-        int					getFd(void);
-        std::string			getUserName();
-        std::string			getNickName();
+		int					getFd(void);
+		std::string			getUserName();
+		std::string			getNickName();
 		void				setSocketFd(){};
 		void				setNickName(std::string &nick);
 		void				setUserName(std::string &user);
 		int					checkPassword(std::string &inputPass, std::string password, int i);
+		void				addChannel(Channel newChannel);
+		std::vector<Channel>	getChannels(void) const;
 };
 
 
