@@ -31,6 +31,20 @@ void Server::addUser(int fd)
 	std::cout << users[0].getUserName() << std::endl;
 }
 
+int Server::checkNickName(std::string &nickName)
+{
+	std::vector<User> temp = getUsers();
+	std::vector<User>::iterator b = temp.begin();
+	std::vector<User>::iterator e = temp.end();
+	while (b != e)
+	{
+		if ((*b).getNickName() == nickName)
+			return (-1);
+		b++;
+	}
+	return (1);
+}
+
 void Server::start()
 {
 	// struct pollfd myPoll[2];
@@ -108,7 +122,13 @@ void	Server::parseAndAdd(int fd, char *buffer)
 		{
 			s++;
 			std::string nick(*s);
-			this->users[i].setNickName(nick);
+			if(checkNickName(nick) == -1)
+			{
+				std::string messg = ": 433 : " + this->users[i].getUserName() + " " + nick + " :Nickname is already in use\r\n";
+				sendMessage(fd, messg);
+			}
+			else
+				this->users[i].setNickName(nick);
 			sign++;
 		}
 		else if (*s == "USER" && (s + 1) != e)
@@ -188,8 +208,19 @@ void	Server::parseAndAdd(int fd, char *buffer)
 	}
 	if (isJoin == true)
 	{
-		std::string messg = ": 332 : " + this->users[i].getUserName() + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " " + ":topic" + "\r\n";
-		sendMessage(fd, messg);
+		// std::string messg = ": 331 :" + this->users[i].getUserName() + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " " + ":topic" + "\r\n";
+		// std::string message = ": 331 : " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + ":No topic is set" + "\r\n";
+		// sendMessage(fd, message);
+		// ( "=" / "*" / "@" ) <channel>
+        //        :[ "@" / "+" ] <nick> *( " " [ "@" / "+" ] <nick> )
+		std::string mssg = ": 331 : = " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " : " + " @" + this->users[1].getNickName() + "\r\n";
+		sendMessage(fd, mssg);
+		std::string mssg1 = ": 366 : " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " :End of NAMES list" + "\r\n";
+		sendMessage(fd, mssg1);
+		//messg = ": 353 : " + this->users[i].getUserName() + " = " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " : " + this->users[i].getNickName() + "\r\n";
+		//sendMessage(fd, messg);
+		//messg = ": 366 : " + this->users[i].getUserName() + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + "\r\n";
+		//sendMessage(fd, messg);
 	}
 }
 

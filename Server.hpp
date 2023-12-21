@@ -43,6 +43,7 @@ class Server {
 		long				getUserIndexByFd(int fd);
 		long				getChannelIndexByFd(std::string id) const;
 		void				joinChannel(std::string id, User &nickname);
+		int 				checkNickName(std::string &nickname);
 };
 
 #endif
