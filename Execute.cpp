@@ -5,7 +5,8 @@ Execute::Execute()
 	commands.push_back(std::make_pair("PASS", Execute::pass));
 	commands.push_back(std::make_pair("USER", Execute::user));
     commands.push_back(std::make_pair("NICK", Execute::nick));
-    commands.push_back(std::make_pair("TEST", Execute::test));
+    commands.push_back(std::make_pair("JOIN", Execute::join));
+    commands.push_back(std::make_pair("TEST", Execute::test)); // temp
 }
 
 Execute::~Execute()
@@ -28,7 +29,7 @@ void Execute::user(int &fd, Server *server, strvector splitted)
     static_cast<void>(fd);
     static_cast<void>(server);
     static_cast<void>(splitted);
-    // error(server->getUser(fd).checkUser(splitted, trimmed), "Wrong User! Please enter correct user.", FLAG_CONTINUE);
+    //error(server->getUser(fd).checkUser())
     server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("USER"), true);
     std::cout << "user function called" << std::endl;
 }
@@ -38,8 +39,21 @@ void Execute::nick(int &fd, Server *server, strvector splitted)
     static_cast<void>(fd);
     static_cast<void>(server);
     static_cast<void>(splitted);
-    server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("NICK"), true);
+    server->getUser(fd).setNickName(splitted[1]);
+    int temp = server->getUser(fd).checkNickName(splitted[1], server->getUsers());
+    error(temp, "Nick already in use!", FLAG_CONTINUE);
+    if (temp != -1)
+        server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("NICK"), true);
     std::cout << "nick function called" << std::endl;
+}
+
+void Execute::join(int &fd, Server *server, strvector splitted)
+{
+    static_cast<void>(fd);
+    static_cast<void>(server);
+    static_cast<void>(splitted);
+    server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("JOIN"), true);
+    std::cout << "join function called" << std::endl;
 }
 
 void Execute::test(int &fd, Server *server, strvector splitted)
@@ -47,15 +61,11 @@ void Execute::test(int &fd, Server *server, strvector splitted)
     static_cast<void>(fd);
     static_cast<void>(server);
     static_cast<void>(splitted);
-    std::cout << "pass: " << server->getUser(fd).getUserAuths("PASS").second << std::endl;
-    std::cout << "nick: " << server->getUser(fd).getUserAuths("NICK").second << std::endl;
-    std::cout << "user: " << server->getUser(fd).getUserAuths("USER").second << std::endl;
     if (server->getUser(fd).getUserAuth() == false)
     {
         Error::error(-1, "You should enter NICK, USER and PASS arguments", FLAG_CONTINUE);
         return;
     }
-    server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("NICK"), true);
     std::cout << "test function called" << std::endl;
 }
 

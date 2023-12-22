@@ -13,9 +13,13 @@ std::string User::getNickName(void) {
     return (nickName);
 }
 
+/*
+* @param file descriptor for user
+*/
 User::User(int fd) {
 	this->fd = fd;
 	this->auth = false;
+	this->firstLogin = true;
 	this->auths[0] = Auth("PASS", false);
 	this->auths[1] = Auth("USER", false);
 	this->auths[2] = Auth("NICK", false);
@@ -59,6 +63,20 @@ int	User::checkPassword(std::string &inputPass, std::string password, int i)
 	return (-1);
 }
 
+int User::checkNickName(std::string &nickName, std::vector<User> &temp)
+{
+	for(size_t i = 0; i < temp.size(); i++)
+	{
+		std::cout << "nicknames: " << temp[i].getNickName() << std::endl;
+		if (temp[i].getNickName() == nickName)
+		{
+			std::cout << "nickName is already exist" << std::endl;
+			return (-1);
+		}
+	}
+	return (1);
+}
+
 void	User::addChannel(Channel newChannel)
 {
 	userInChannels.push_back(newChannel);
@@ -77,7 +95,6 @@ Auth User::getUserAuths(std::string auth)
 	{
 		if (this->auths[i].first == auth)
 		{
-			std::cout << "first: " << auths[i].first <<std::endl;
 			return (this->auths[i]);
 		}
 	}

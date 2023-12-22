@@ -15,10 +15,10 @@ std::vector<User> Channel::getUsers() const
 	return(this->users);
 }
 
-void	Channel::addUser(User &newUser)
+void	Channel::addUser(User newUser)
 {
 	users.push_back(newUser);
-	newUser.addChannel(*this);
+	// newUser.addChannel(*this);
 }
 
 bool	Channel::checkPassword(std::string password) const
@@ -28,7 +28,7 @@ bool	Channel::checkPassword(std::string password) const
 	return (false);
 }
 
-std::string	Channel::getPassword(void)
+std::string	Channel::getPassword(void) const
 {
 	return (this->password);
 }
