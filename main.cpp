@@ -10,9 +10,7 @@ int main(int ac, char **av)
 		while (true)
 		{
 			mainServer.start();
-
 		}
-
 	}
 	else
 		cout << "Error: Invalid arguments.\nYou should enter 3 agruments." << endl;

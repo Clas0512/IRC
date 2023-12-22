@@ -2,7 +2,7 @@ NAME = ircserv
 CXX = c++
 CPPFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRCS = $(wildcard *.cpp)
+SRCS = $(wildcard *.cpp) #Channel.cpp main.cpp parser.cpp Server.cpp User.cpp 
 OBJS = $(SRCS:.cpp=.o)
 
 all: $(NAME)

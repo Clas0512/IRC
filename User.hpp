@@ -28,7 +28,7 @@ class User {
 		void				setUserName(std::string &user);
 		int					checkPassword(std::string &inputPass, std::string password, int i);
 		void				addChannel(Channel newChannel);
-		std::vector<Channel>	getChannels(void) const;
+		std::vector<Channel>	getChannels(void);
 };
 
 

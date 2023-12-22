@@ -47,7 +47,7 @@ void	User::addChannel(Channel newChannel)
 	userInChannels.push_back(newChannel);
 }
 
-std::vector<Channel>	User::getChannels(void) const
+std::vector<Channel>	User::getChannels(void)
 {
 	return (this->userInChannels);
 }

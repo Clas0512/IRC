@@ -20,6 +20,7 @@ class Channel
 		bool	checkPassword(std::string password) const;
 		std::vector<User> getUsers() const;
 		void	addUser(User &newUser);
+		std::string	getPassword(void);
 };
 
 #endif

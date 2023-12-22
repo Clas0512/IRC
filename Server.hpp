@@ -6,6 +6,7 @@
 # include <vector>
 # include <netdb.h>
 # include "User.hpp"
+# include "Execute.hpp"
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <poll.h>
@@ -13,6 +14,7 @@
 # define FLAG_CONTINUE 1
 
 class User;
+class Execute;
 
 struct userInfo {
 	std::string userName;
@@ -44,6 +46,10 @@ class Server {
 		long				getChannelIndexByFd(std::string id) const;
 		void				joinChannel(std::string id, User &nickname);
 		int 				checkNickName(std::string &nickname);
+		void				parseAndExec(int fd, std::string buffer);
 };
+
+std::vector<std::string> 	parser(std::string &buffer);
+std::vector<std::string>	split(std::string str, char delimeter);
 
 #endif

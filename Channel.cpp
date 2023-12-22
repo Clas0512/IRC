@@ -5,9 +5,15 @@ Channel::Channel(std::string _id, User _admin, std::string _password) : id(_id),
 	users.push_back(_admin);
 }
 
-std::string	Channel::getId(void) const { return (this->id); }
+std::string	Channel::getId(void) const
+{
+	return (this->id);
+}
 
-std::vector<User> Channel::getUsers() const { return(this->users); };
+std::vector<User> Channel::getUsers() const
+{
+	return(this->users);
+}
 
 void	Channel::addUser(User &newUser)
 {
@@ -20,5 +26,10 @@ bool	Channel::checkPassword(std::string password) const
 	if (password == this->password)
 		return (true);
 	return (false);
+}
+
+std::string	Channel::getPassword(void)
+{
+	return (this->password);
 }
 

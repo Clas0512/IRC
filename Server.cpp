@@ -83,10 +83,28 @@ void Server::start()
 				if (pollFds[i].revents & POLLIN)
 				{
 					error(recv(pollFds[i].fd, buffer, 1024, MSG_EOF), "Couldn't recieve!", 108);
-					std::cout << buffer;
 					parseAndAdd(pollFds[i].fd, buffer);
+					//std::string buff = buffer;
+					//parseAndExec(pollFds[i].fd, buff);
 				}
 			}
+		}
+	}
+}
+
+void	Server::parseAndExec(int fd, std::string buffer)
+{
+	Execute exec;
+	std::vector<std::string> buff = parser(buffer);
+	for(size_t i = 0; i < buff.size(); i++)
+	{
+		std::vector<std::string> splitted = split(buff[0], ' ');
+		// for(size_t i = 0; i < splitted.size(); i++)
+		// 	std::cout << "buff: "  << splitted[i] << std::endl;
+		for(size_t j = 0; j < exec.getCommands().size(); j++)
+		{
+			if (exec.getCommands()[j].first == splitted[0])
+				exec.getCommands()[i].second(fd, this, splitted);
 		}
 	}
 }
@@ -94,6 +112,7 @@ void Server::start()
 void	Server::parseAndAdd(int fd, char *buffer)
 {
 	bool isJoin = false;
+	bool isFirst = false;
 	long i = getUserIndexByFd(fd);
 	if (i == -1)
 	{
@@ -110,6 +129,7 @@ void	Server::parseAndAdd(int fd, char *buffer)
 	std::vector<std::string>::iterator s = words.begin();
 	std::vector<std::string>::iterator e = words.end();
 	int sign = 0;
+	int ic = 0;
 	while (s != e)
 	{
 		if (*s == "PASS" && (s + 1) != e)
@@ -160,13 +180,19 @@ void	Server::parseAndAdd(int fd, char *buffer)
 		{
 			s++;
 			int channelId = getChannelIndexByFd(*s);
+			std::cout << "channel id: " << channelId << std::endl;
 			if (!((*s).size() > 2 && (*s)[0] == '#'))
 			{
 				std::cout << "Channel id is not valid!" << std::endl;
 				return ;
 			}
 			if (channelId == -1)
+			{
 				createChannel(*s, users[getUserIndexByFd(fd)], *(s + 1));
+				std::cout << this->users[i].getChannels().size() << "\n";
+				isJoin = true;
+				isFirst = true;
+			}
 			else
 			{
 				if (channels[channelId].checkPassword(*(s + 1)) == false)
@@ -213,10 +239,38 @@ void	Server::parseAndAdd(int fd, char *buffer)
 		// sendMessage(fd, message);
 		// ( "=" / "*" / "@" ) <channel>
         //        :[ "@" / "+" ] <nick> *( " " [ "@" / "+" ] <nick> )
-		std::string mssg = ": 331 : = " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " : " + " @" + this->users[1].getNickName() + "\r\n";
-		sendMessage(fd, mssg);
-		std::string mssg1 = ": 366 : " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " :End of NAMES list" + "\r\n";
-		sendMessage(fd, mssg1);
+		
+		ic++;
+		
+		std::string mssgJoin = ":" + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + "localhost" + " JOIN " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + "\r\n";
+		sendMessage(fd, mssgJoin);
+		if (isFirst == true)
+		{
+			// [!] BUFFER: :nickim!userim@localhost JOIN #5187 3131
+			// [!] BUFFER: :nickim!userim@localhost MODE #5187 3131 +o nickim
+			// [!] BUFFER: :k1m01s02.42istanbul.com.tr 331 nickim #5187 3131 :No topic is set
+			std::string mssgJoin2 = ":" + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + "localhost" + " MODE " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + " +o " + this->users[i].getNickName() + "\r\n";
+			sendMessage(fd, mssgJoin2);
+			std::string mssg = ":" + this->getServerName() + " 331 " + this->getUsers()[i].getNickName() + " " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + " :" + "No topic is set" + "\r\n";
+			sendMessage(fd, mssg);
+		}
+		else
+		{
+			std::string mssg = ":" + this->getServerName() + " 331 " + this->getUsers()[i].getNickName() + " " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + " :" + "No topic is set" + "\r\n";
+			sendMessage(fd, mssg);
+			if (ic == 2)
+			sendMessage(fd, mssgJoin);
+			std::string mssgJoin2 = ":" + this->getServerName() + " 353 " + this->users[i].getNickName() + " = " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + " :@" + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers()[0].getNickName(); //+ this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers()[i].getNickName() + "\r\n";
+			for (size_t j = 1; j < this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers().size(); j++)
+				mssgJoin2 = mssgJoin2 + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers()[j].getNickName();
+			mssgJoin2 += "\r\n";
+			
+			sendMessage(fd, mssgJoin2);
+			// [!] BUFFER: :k1m01s02.42istanbul.com.tr 366 newbie|2 #ad 123 :End of /NAMES list
+			// :k1m01s02.42istanbul.com.tr 366 nickim #4542 3131 :End of /NAMES list
+			std::string mssg1 = ":" + this->getServerName() + " 366 " + this->getUsers()[i].getNickName() + " " + (*this).users[i].getChannels()[this->users[i].getChannels().size()].getId() + " " + (*this).users[i].getChannels()[this->users[i].getChannels().size()].getPassword() + " :End of /NAMES list" + "\r\n";
+			sendMessage(fd, mssg1);
+		}
 		//messg = ": 353 : " + this->users[i].getUserName() + " = " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + " : " + this->users[i].getNickName() + "\r\n";
 		//sendMessage(fd, messg);
 		//messg = ": 366 : " + this->users[i].getUserName() + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getId() + "\r\n";
@@ -226,6 +280,7 @@ void	Server::parseAndAdd(int fd, char *buffer)
 
 void Server::sendMessage(int fd, std::string messg)
 {
+	std::cout << "send: ." << messg << "." << std::endl;
 	error(send(fd, messg.c_str(), messg.size() + 1, 0), "Couldn't send!", 31);
 }
 
@@ -263,7 +318,9 @@ std::string Server::getServerName() const { return (serverName); }
 
 void	Server::createChannel(std::string id, User &admin, std::string password)
 {
-	this->channels.push_back(Channel(id, admin, password));
+	Channel newChannel(id, admin, password);
+	this->channels.push_back(newChannel);
+	admin.addChannel(newChannel);
 }
 
 void	Server::joinChannel(std::string id, User &nickname)
