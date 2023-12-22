@@ -31,11 +31,28 @@ void				User::setUserName(std::string &user)
 	this->userName = user;
 }
 
+void User::setUserAuth(Auth auth, bool val)
+{
+	int i;
+
+	for( i = 0; this->auths[i].first != auth.first; i++)
+		if (i == 3)
+			break ;
+
+	this->auths[i].second = val;
+	checkAuths(this->getUserAuths("PASS"), this->getUserAuths("NICK"), this->getUserAuths("USER"));
+}
+
+void User::checkAuths(Auth pass, Auth nick, Auth user)
+{
+	if (pass.second == true && nick.second == true && user.second == true)
+		this->auth = true;
+}
+
 int	User::checkPassword(std::string &inputPass, std::string password, int i)
 {
 	if (inputPass == password)
 	{
-		this->auth = true;
 		std::cout << "it's correct pass. User index is " << i << std::endl;
 		return (1);
 	}
@@ -50,6 +67,21 @@ void	User::addChannel(Channel newChannel)
 std::vector<Channel>	User::getChannels(void)
 {
 	return (this->userInChannels);
+}
+
+bool User::getUserAuth() const { return this->auth; }
+
+Auth User::getUserAuths(std::string auth)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		if (this->auths[i].first == auth)
+		{
+			std::cout << "first: " << auths[i].first <<std::endl;
+			return (this->auths[i]);
+		}
+	}
+	return (Auth("NULL", false));
 }
 
 User::~User() {}

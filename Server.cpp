@@ -104,7 +104,7 @@ void	Server::parseAndExec(int fd, std::string buffer)
 		for(size_t j = 0; j < exec.getCommands().size(); j++)
 		{
 			if (exec.getCommands()[j].first == splitted[0])
-				exec.getCommands()[i].second(fd, this, splitted);
+				exec.getCommands()[j].second(fd, this, splitted);
 		}
 	}
 }
@@ -231,6 +231,11 @@ void	Server::parseAndAdd(int fd, char *buffer)
 		// macroyla olusturulacak
 		std::string messg = ": 001 : " + this->users[i].getUserName() + " Welcome to the Internet Relay Network " + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + this->getServerName() + "\r\n"; 
 		sendMessage(fd, messg);
+	}
+	else
+	{
+		std::string capls = "CAP * ACK :multi-prefix sasl\r\n";
+		sendMessage(fd, capls);
 	}
 	if (isJoin == true)
 	{

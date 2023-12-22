@@ -23,12 +23,16 @@ class User {
 		int					getFd(void);
 		std::string			getUserName();
 		std::string			getNickName();
+		bool				getUserAuth() const;
+		Auth				getUserAuths(std::string auth);
 		void				setSocketFd(){};
 		void				setNickName(std::string &nick);
 		void				setUserName(std::string &user);
+		void				setUserAuth(Auth auth, bool val);
 		int					checkPassword(std::string &inputPass, std::string password, int i);
 		void				addChannel(Channel newChannel);
 		std::vector<Channel>	getChannels(void);
+		void				checkAuths(Auth pass, Auth nick, Auth user);
 };
 
 

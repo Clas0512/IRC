@@ -22,6 +22,7 @@ class Execute
 		static void pass(int &fd, Server *server, strvector splitted);
 		static void user(int &fd, Server *server, strvector splitted);
 		static void nick(int &fd, Server *server, strvector splitted);
+		static void test(int &fd, Server *server, strvector splitted);
 	public:
 		Execute();
 		~Execute();
