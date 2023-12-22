@@ -5,6 +5,9 @@
 # include <vector>
 # include <utility>
 # include "Server.hpp"
+# include "Error.hpp"
+
+using namespace Error;
 
 class Server;
 

@@ -16,7 +16,7 @@ void	Execute::pass(int &fd, Server *server, strvector splitted)
     static_cast<void>(server);
     static_cast<void>(splitted);
     static_cast<void>(fd);
-    error(server->getUser(fd).checkPassword(splitted, server->getPassword()), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
+    error(server->getUser(fd).checkPassword(splitted[1], server->getPassword(), server->getUsers().size()), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
     //server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("PASS"), true);
     std::cout << "pass func called" << std::endl;
 }

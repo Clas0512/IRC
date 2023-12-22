@@ -83,9 +83,9 @@ void Server::start()
 				if (pollFds[i].revents & POLLIN)
 				{
 					error(recv(pollFds[i].fd, buffer, 1024, MSG_EOF), "Couldn't recieve!", 108);
-					parseAndAdd(pollFds[i].fd, buffer);
-					//std::string buff = buffer;
-					//parseAndExec(pollFds[i].fd, buff);
+					//parseAndAdd(pollFds[i].fd, buffer);
+					std::string buff = buffer;
+					parseAndExec(pollFds[i].fd, buff);
 				}
 			}
 		}
@@ -284,16 +284,6 @@ void Server::sendMessage(int fd, std::string messg)
 	error(send(fd, messg.c_str(), messg.size() + 1, 0), "Couldn't send!", 31);
 }
 
-void Server::error(int value, std::string func, int errorNo)
-{
-	if (value < 0)
-	{
-		std::cout << "Error: " << func << std::endl;
-		if (errorNo != FLAG_CONTINUE)
-			exit(errorNo);
-	}
-}
-
 long	Server::getUserIndexByFd(int fd)
 {
 	for (size_t i = 0; i < users.size(); i++)
@@ -314,7 +304,17 @@ long	Server::getChannelIndexByFd(std::string id) const
 
 std::vector<User> &Server::getUsers() { return (users); }
 
+User &Server::getUser(int fd)
+{
+	for (size_t i = 0; i < users.size(); i++)
+		if (users[i].getFd() == fd)
+			return (users[i]);
+	return (users[0]); // burayı düzelt
+}
+
 std::string Server::getServerName() const { return (serverName); }
+
+std::string Server::getPassword() const { return (password); }
 
 void	Server::createChannel(std::string id, User &admin, std::string password)
 {

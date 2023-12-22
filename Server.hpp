@@ -7,14 +7,15 @@
 # include <netdb.h>
 # include "User.hpp"
 # include "Execute.hpp"
+# include "Error.hpp"
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <poll.h>
 
-# define FLAG_CONTINUE 1
-
 class User;
 class Execute;
+
+using namespace Error;
 
 struct userInfo {
 	std::string userName;
@@ -36,9 +37,10 @@ class Server {
         ~Server();
         void				addUser(int fd);
         std::vector<User>	&getUsers();
+		User				&getUser(int fd);
         std::string			getServerName() const;
+		std::string			getPassword() const;
         void				start();
-		void				error(int value, std::string func, int errorNo);
 		void				parseAndAdd(int fd, char *buffer);
 		void				sendMessage(int fd, std::string messg);
 		void				createChannel(std::string id, User &admin, std::string password);
