@@ -18,15 +18,18 @@ class User {
 		bool					firstLogin;
 		bool					auth;
 		Auth					auths[3];
+		bool					cap;
     public:
         User(int fd);
         ~User();
 		int						getFd(void);
 		std::string				getUserName();
 		std::string				getNickName();
+		bool					getCap() const;
 		bool					getUserAuth() const;
 		Auth					getUserAuths(std::string auth);
 		void					setSocketFd(){};
+		void					setCap(bool val);
 		void					setNickName(std::string &nick);
 		void					setUserName(std::string &user);
 		void					setUserAuth(Auth auth, bool val);

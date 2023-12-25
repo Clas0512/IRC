@@ -22,6 +22,7 @@ Server::Server(char **av)
 
 	error(bind(fd, (struct sockaddr *)&socketAddr, socketAddrLen), "Socket binding cannot completed!", 101);
 	this->time = getTime();
+	error(listen(this->fd, 20), "Listen does not work!", 102);
 }
 
 Server::~Server() {}
@@ -41,7 +42,6 @@ void Server::start()
 	// int denemeFd = poll(myPoll, );
 
 // ------------------------------------------------------------------
-	error(listen(this->fd, 3), "Listen does not work!", 102);
 
 	std::vector<pollfd> pollFds(1);
 	pollFds[0].fd = this->fd;
@@ -73,10 +73,10 @@ void Server::start()
 				if (pollFds[i].revents & POLLIN)
 				{
 					error(recv(pollFds[i].fd, buffer, 1024, MSG_EOF), "Couldn't recieve!", 108);
-					parseAndAdd(pollFds[i].fd, buffer);
-					std::cout << buffer << std::endl;
-					//std::string buff = buffer;
-					//parseAndExec(pollFds[i].fd, buff);
+					//parseAndAdd(pollFds[i].fd, buffer);
+					std::cout << "BUFFER: " << buffer << std::endl;
+					std::string buff = buffer;
+					parseAndExec(pollFds[i].fd, buff);
 				}
 			}
 		}
@@ -357,7 +357,7 @@ User &Server::getUser(int fd)
 	for (size_t i = 0; i < users.size(); i++)
 		if (users[i].getFd() == fd)
 			return (users[i]);
-	return (users[0]); // burayı düzelt
+	return (users[0]); // burayi duzelt
 }
 
 std::string Server::getServerName() const { return (serverName); }

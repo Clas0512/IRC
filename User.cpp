@@ -13,6 +13,8 @@ std::string User::getNickName(void) {
     return (nickName);
 }
 
+bool User::getCap() const { return this->cap; }
+
 /*
 * @param file descriptor for user
 */
@@ -34,6 +36,8 @@ void				User::setUserName(std::string &user)
 {
 	this->userName = user;
 }
+
+void User::setCap(bool val) { this->cap = val; }
 
 void User::setUserAuth(Auth auth, bool val)
 {

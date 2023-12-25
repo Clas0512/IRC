@@ -6,6 +6,7 @@ Execute::Execute()
 	commands.push_back(std::make_pair("USER", Execute::user));
     commands.push_back(std::make_pair("NICK", Execute::nick));
     commands.push_back(std::make_pair("JOIN", Execute::join));
+    commands.push_back(std::make_pair("CAP", Execute::cap));
     commands.push_back(std::make_pair("TEST", Execute::test)); // temp
 }
 
@@ -54,6 +55,26 @@ void Execute::join(int &fd, Server *server, strvector splitted)
     static_cast<void>(splitted);
     server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("JOIN"), true);
     std::cout << "join function called" << std::endl;
+}
+
+void Execute::cap(int &fd, Server *server, strvector splitted)
+{
+    static_cast<void>(fd);
+    static_cast<void>(server);
+    static_cast<void>(splitted);
+    
+    if (server->getUser(fd).getCap() == false)
+    {
+        server->sendMessage(fd, "CAP * LS :multi-prefix sasl");
+        server->getUser(fd).setCap(true);
+    }
+    else
+    {
+        server->sendMessage(fd, "CAP * ACK multi-prefix");
+        server->getUser(fd).setCap(false);
+    }
+    sleep(1);
+    std::cout << "cap function called" << std::endl;
 }
 
 void Execute::test(int &fd, Server *server, strvector splitted)
