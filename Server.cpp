@@ -14,7 +14,6 @@ Server::Server(char **av)
 
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	error(fd, "Socket creation cannot completed!", 101);
-	error(setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)), "Socket option setting cannot completed!", 101);
 
 	socketAddr.sin_family = AF_INET;
 	socketAddr.sin_addr.s_addr = INADDR_ANY;
@@ -23,6 +22,8 @@ Server::Server(char **av)
 	error(bind(fd, (struct sockaddr *)&socketAddr, socketAddrLen), "Socket binding cannot completed!", 101);
 	this->time = getTime();
 	error(listen(this->fd, 20), "Listen does not work!", 102);
+	error(setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)), "Socket option setting cannot completed!", 101);
+	error(fcntl(fd, F_SETFL, O_NONBLOCK), "in fcntl function!", 107);
 }
 
 Server::~Server() {}
@@ -38,11 +39,6 @@ void Server::addUser(int fd)
 */
 void Server::start()
 {
-	// struct pollfd myPoll[2];
-	// int denemeFd = poll(myPoll, );
-
-// ------------------------------------------------------------------
-
 	std::vector<pollfd> pollFds(1);
 	pollFds[0].fd = this->fd;
 	pollFds[0].events = POLLIN;
@@ -74,7 +70,7 @@ void Server::start()
 				{
 					error(recv(pollFds[i].fd, buffer, 1024, MSG_EOF), "Couldn't recieve!", 108);
 					//parseAndAdd(pollFds[i].fd, buffer);
-					std::cout << "BUFFER: " << buffer << std::endl;
+					std::cout << "girdi: " << buffer << std::endl;
 					std::string buff = buffer;
 					parseAndExec(pollFds[i].fd, buff);
 				}
@@ -90,8 +86,8 @@ void	Server::parseAndExec(int fd, std::string buffer)
 	for(size_t i = 0; i < buff.size(); i++)
 	{
 		std::vector<std::string> splitted = split(buff[0], ' ');
-		// for(size_t i = 0; i < splitted.size(); i++)
-		// 	std::cout << "buff: "  << splitted[i] << std::endl;
+		 for(size_t i = 0; i < splitted.size(); i++)
+		 	std::cout << "splitted: "  << splitted[i] << std::endl;
 		for(size_t j = 0; j < exec.getCommands().size(); j++)
 		{
 			if (exec.getCommands()[j].first == splitted[0])
@@ -317,7 +313,7 @@ void	Server::parseAndAdd(int fd, char *buffer)
 
 void Server::sendMessage(int fd, std::string messg)
 {
-	std::cout << "sent: ." << messg << "." << " to " << fd << std::endl;
+	std::cout << "send func:" << messg << " to " << fd << std::endl;
 	messg += "\r\n";
 	error(send(fd, messg.c_str(), messg.size() + 1, 0), "Couldn't send!", 31);
 }

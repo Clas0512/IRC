@@ -14,6 +14,7 @@ Execute::~Execute()
 {
 }
 
+//PASS command
 void	Execute::pass(int &fd, Server *server, strvector splitted)
 {
     static_cast<void>(server);
@@ -25,6 +26,7 @@ void	Execute::pass(int &fd, Server *server, strvector splitted)
     std::cout << "pass func called" << std::endl;
 }
 
+//USER command
 void Execute::user(int &fd, Server *server, strvector splitted)
 {
     static_cast<void>(fd);
@@ -35,19 +37,18 @@ void Execute::user(int &fd, Server *server, strvector splitted)
     std::cout << "user function called" << std::endl;
 }
 
+//NICK command
 void Execute::nick(int &fd, Server *server, strvector splitted)
 {
-    static_cast<void>(fd);
-    static_cast<void>(server);
-    static_cast<void>(splitted);
-    server->getUser(fd).setNickName(splitted[1]);
     int temp = server->getUser(fd).checkNickName(splitted[1], server->getUsers());
     error(temp, "Nick already in use!", FLAG_CONTINUE);
     if (temp != -1)
         server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("NICK"), true);
+    server->getUser(fd).setNickName(splitted[1]);
     std::cout << "nick function called" << std::endl;
 }
 
+//JOIN command
 void Execute::join(int &fd, Server *server, strvector splitted)
 {
     static_cast<void>(fd);
@@ -57,6 +58,7 @@ void Execute::join(int &fd, Server *server, strvector splitted)
     std::cout << "join function called" << std::endl;
 }
 
+//CAP command
 void Execute::cap(int &fd, Server *server, strvector splitted)
 {
     static_cast<void>(fd);
@@ -72,8 +74,8 @@ void Execute::cap(int &fd, Server *server, strvector splitted)
     {
         server->sendMessage(fd, "CAP * ACK multi-prefix");
         server->getUser(fd).setCap(false);
+        sleep(1);
     }
-    sleep(1);
     std::cout << "cap function called" << std::endl;
 }
 

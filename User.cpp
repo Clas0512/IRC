@@ -71,10 +71,9 @@ int User::checkNickName(std::string &nickName, std::vector<User> &temp)
 {
 	for(size_t i = 0; i < temp.size(); i++)
 	{
-		std::cout << "nicknames: " << temp[i].getNickName() << std::endl;
+		//std::cout << "nicknames: " << temp[i].getNickName() << std::endl;
 		if (temp[i].getNickName() == nickName)
 		{
-			std::cout << "nickName is already exist" << std::endl;
 			return (-1);
 		}
 	}
