@@ -17,10 +17,11 @@ Execute::~Execute()
 //PASS command
 void	Execute::pass(int &fd, Server *server, strvector splitted)
 {
-    static_cast<void>(server);
-    static_cast<void>(splitted);
-    static_cast<void>(fd);
-    std::cout << "buraya girdi" << std::endl;
+    if (server->getUser(fd).getUserAuths("PASS").second == true && server->getUser(fd).getUserAuth() == true)
+    {
+        numeric::sendNumeric(ERR_ALREADYREGISTRED, &server->getUser(fd), server);
+        return;
+    }
     error(server->getUser(fd).checkPassword(splitted[1], server->getPassword(), server->getUsers().size()), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
     server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("PASS"), true);
     std::cout << "pass func called" << std::endl;
@@ -28,11 +29,14 @@ void	Execute::pass(int &fd, Server *server, strvector splitted)
 
 //USER command
 void Execute::user(int &fd, Server *server, strvector splitted)
-{
-    static_cast<void>(fd);
-    static_cast<void>(server);
-    static_cast<void>(splitted);
-    //error(server->getUser(fd).checkUser())
+{    
+    if (server->getUser(fd).getUserAuths("USER").second == true && server->getUser(fd).getUserAuth() == true)
+    {
+        numeric::sendNumeric(ERR_ALREADYREGISTRED, &server->getUser(fd), server);
+        return;
+    }
+    int tmp = server->getUser(fd).checkUser(splitted, server);
+    error(tmp, "You should enter \"USER <username> <mode> <hostname> <realname>\"", FLAG_CONTINUE);
     server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("USER"), true);
     std::cout << "user function called" << std::endl;
 }
@@ -64,7 +68,6 @@ void Execute::cap(int &fd, Server *server, strvector splitted)
     static_cast<void>(fd);
     static_cast<void>(server);
     static_cast<void>(splitted);
-    
     if (server->getUser(fd).getCap() == false)
     {
         server->sendMessage(fd, "CAP * LS :multi-prefix sasl");

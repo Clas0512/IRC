@@ -9,20 +9,19 @@ Server::Server(char **av)
 	gethostname(hostName, 1024);
 	serverName = hostName;
 	port = std::stoi(av[1]);
-	this->socketAddrLen = sizeof(socketAddr);
 	this->password = av[2];
-
+	
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	error(fd, "Socket creation cannot completed!", 101);
-
+	sockaddr_in socketAddr;
 	socketAddr.sin_family = AF_INET;
 	socketAddr.sin_addr.s_addr = INADDR_ANY;
 	socketAddr.sin_port = htons(port);
 
-	error(bind(fd, (struct sockaddr *)&socketAddr, socketAddrLen), "Socket binding cannot completed!", 101);
+	error(bind(fd, reinterpret_cast<sockaddr*>(&socketAddr), sizeof(socketAddr)), "Socket binding cannot completed!", 101);
 	this->time = getTime();
 	error(listen(this->fd, 20), "Listen does not work!", 102);
-	error(setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)), "Socket option setting cannot completed!", 101);
+	error(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)), "Socket option setting cannot completed!", 101);
 	error(fcntl(fd, F_SETFL, O_NONBLOCK), "in fcntl function!", 107);
 }
 
@@ -53,7 +52,8 @@ void Server::start()
 		{
 			if (pollFds[0].revents & POLLIN) // ----------------**********************----------**********-*-*-*-*-*-**
 			{
-				int clientFd = accept(this->fd, reinterpret_cast<sockaddr*>(&this->socketAddr), reinterpret_cast<socklen_t*>(&this->socketAddrLen));
+				sockaddr_in clientAddr;
+				int clientFd = accept(this->fd, reinterpret_cast<sockaddr*>(&clientAddr), reinterpret_cast<socklen_t*>(&clientAddr));
 				error(fcntl(clientFd, F_SETFL, O_NONBLOCK), "in fcntl function!", 107);
 				pollfd temp;
 				temp.fd = clientFd;
@@ -91,7 +91,9 @@ void	Server::parseAndExec(int fd, std::string buffer)
 		for(size_t j = 0; j < exec.getCommands().size(); j++)
 		{
 			if (exec.getCommands()[j].first == splitted[0])
+			{
 				exec.getCommands()[j].second(fd, this, splitted);
+			}
 		}
 	}
 }

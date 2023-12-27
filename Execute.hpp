@@ -6,6 +6,7 @@
 # include <utility>
 # include "Server.hpp"
 # include "Error.hpp"
+# include "Numeric.hpp"
 
 using namespace Error;
 

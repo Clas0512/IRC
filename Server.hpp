@@ -8,20 +8,17 @@
 # include "User.hpp"
 # include "Execute.hpp"
 # include "Error.hpp"
+# include "Channel.hpp"
+# include "Numeric.hpp"
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <poll.h>
-# include "Numeric.hpp"
 
 class User;
 class Execute;
+class Channel;
 
 using namespace Error;
-
-struct userInfo {
-	std::string userName;
-	std::string nickName;
-};
 
 class Server {
     private:
@@ -31,8 +28,6 @@ class Server {
         std::string				serverName;
         std::vector<User>		users;
         std::vector<Channel>	channels;
-		sockaddr_in				socketAddr;
-		socklen_t				socketAddrLen;
 		std::string				time;
     public:
         Server(char **av);

@@ -1,23 +1,8 @@
 #include "User.hpp"
 #include "Server.hpp"
 
-int User::getFd(void) {
-    return (fd);
-}
 
-std::string User::getUserName(void) {
-    return (userName);
-}
-
-std::string User::getNickName(void) {
-    return (nickName);
-}
-
-bool User::getCap() const { return this->cap; }
-
-/*
-* @param file descriptor for user
-*/
+// @param fd file descriptor for user
 User::User(int fd) {
 	this->fd = fd;
 	this->auth = false;
@@ -27,29 +12,35 @@ User::User(int fd) {
 	this->auths[2] = Auth("NICK", false);
 }
 
-void				User::setNickName(std::string &nick)
-{
-	this->nickName = nick;
-}
+//SETTERS
 
-void				User::setUserName(std::string &user)
-{
-	this->userName = user;
-}
+void				User::setNickName(std::string &nick) { this->nickName = nick; }
+void				User::setUserName(std::string &user) { this->userName = user; }
+void				User::setHostName(std::string &host) { this->hostName = host; }
+void				User::setRealName(std::string &real) { this->realName = real; }
+void				User::setMode(int mode) { this->mode = mode; }
+void 				User::setCap(bool val) { this->cap = val; }
 
-void User::setCap(bool val) { this->cap = val; }
-
-void User::setUserAuth(Auth auth, bool val)
+void 				User::setUserAuth(Auth auth, bool val)
 {
 	int i;
-
 	for( i = 0; this->auths[i].first != auth.first; i++)
 		if (i == 3)
 			break ;
-
 	this->auths[i].second = val;
 	checkAuths(this->getUserAuths("PASS"), this->getUserAuths("NICK"), this->getUserAuths("USER"));
 }
+
+//GETTERS
+
+int User::getFd(void) const { return (fd); }
+std::string User::getUserName(void) const { return (userName); }
+std::string User::getNickName(void) const { return (nickName); }
+std::string User::getRealName(void) const { return (realName); }
+std::string User::getHostName(void) const { return (hostName); }
+bool User::getCap() const { return this->cap; }
+
+//COMMAND CHECKERS
 
 void User::checkAuths(Auth pass, Auth nick, Auth user)
 {
@@ -67,15 +58,48 @@ int	User::checkPassword(std::string &inputPass, std::string password, int i)
 	return (-1);
 }
 
+// check nickname if it's already in use return -1 else return 1
 int User::checkNickName(std::string &nickName, std::vector<User> &temp)
 {
 	for(size_t i = 0; i < temp.size(); i++)
 	{
-		//std::cout << "nicknames: " << temp[i].getNickName() << std::endl;
 		if (temp[i].getNickName() == nickName)
 		{
 			return (-1);
 		}
+	}
+	return (1);
+}
+
+int User::checkUser(std::vector<std::string> &splitted, Server *server)
+{
+	if (splitted.size() < 5 )
+	{
+		std::string command = "USER";
+		numeric::sendNumeric(ERR_NEEDMOREPARAMS(command), this, server);
+		return (-1);
+	}
+	for(size_t i = 1; i < splitted.size(); i++)
+	{
+		if(splitted[i] == "\r\n" || splitted[i] == "\n" || splitted[i] == "\r")
+		{
+			std::cout << "space basti" << std::endl;
+			return -1;
+		}
+		this->setUserName(splitted[1]);
+		try
+		{
+			this->setMode(stoi(splitted[2]));
+		}
+		catch(const std::exception& e)
+		{
+			return (-1);
+		}
+		this->setHostName(splitted[3]);
+		std::string realname;
+		for(size_t j = 4; j < splitted.size(); j++)
+			realname += splitted[j] + " ";
+		this->setRealName(realname);
 	}
 	return (1);
 }
