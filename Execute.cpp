@@ -55,9 +55,6 @@ void Execute::nick(int &fd, Server *server, strvector splitted)
 //JOIN command
 void Execute::join(int &fd, Server *server, strvector splitted)
 {
-    static_cast<void>(fd);
-    static_cast<void>(server);
-    static_cast<void>(splitted);
     server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("JOIN"), true);
     std::cout << "join function called" << std::endl;
 }

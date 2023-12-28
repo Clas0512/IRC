@@ -1,13 +1,13 @@
 # include "Channel.hpp"
 
-Channel::Channel(std::string _id, User _admin, std::string _password) : id(_id), password(_password)
+Channel::Channel(std::string _id, User _admin, std::string _password) : name(_id), password(_password)
 {
 	users.push_back(_admin);
 }
 
-std::string	Channel::getId(void) const
+std::string	Channel::getName(void) const
 {
-	return (this->id);
+	return (this->name);
 }
 
 std::vector<User> Channel::getUsers() const

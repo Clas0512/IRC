@@ -32,6 +32,7 @@ class User {
 		std::string				getNickName() const;
 		std::string				getRealName() const;
 		std::string				getHostName() const;
+		bool					getFirstLogin() const;
 		bool					getCap() const;
 		bool					getUserAuth() const;
 		Auth					getUserAuths(std::string auth);
@@ -42,6 +43,7 @@ class User {
 		void					setUserName(std::string &user);
 		void					setHostName(std::string &host);
 		void					setRealName(std::string &real);
+		void					setFirstLogin(bool val);
 		void					setUserAuth(Auth auth, bool val);
 		int						checkPassword(std::string &inputPass, std::string password, int i);
 		int						checkNickName(std::string &nick, std::vector<User> &temp);

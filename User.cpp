@@ -20,6 +20,7 @@ void				User::setHostName(std::string &host) { this->hostName = host; }
 void				User::setRealName(std::string &real) { this->realName = real; }
 void				User::setMode(int mode) { this->mode = mode; }
 void 				User::setCap(bool val) { this->cap = val; }
+void 				User::setFirstLogin(bool val) { this->firstLogin = val; }
 
 void 				User::setUserAuth(Auth auth, bool val)
 {
@@ -38,6 +39,7 @@ std::string User::getUserName(void) const { return (userName); }
 std::string User::getNickName(void) const { return (nickName); }
 std::string User::getRealName(void) const { return (realName); }
 std::string User::getHostName(void) const { return (hostName); }
+bool User::getFirstLogin(void) const { return (firstLogin); }
 bool User::getCap() const { return this->cap; }
 
 //COMMAND CHECKERS
