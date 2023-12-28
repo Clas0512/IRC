@@ -66,7 +66,16 @@ void Server::start()
 			{
 				char buffer[1024];
 				memset(buffer, 0, 1024);
-				if (pollFds[i].revents & POLLIN)
+				if (pollFds[i].revents == 0)
+					continue;
+				if (pollFds[i].revents != POLLIN) // BURADA KULLANICI SİLMEKTE EKLENECEK ÖNEMLİ !!!
+				{
+					std::cout << "A user disconnected!" << std::endl;
+					close(pollFds[i].fd);
+					pollFds.erase(pollFds.begin() + i);
+					i--;
+				}
+				else if (pollFds[i].revents & POLLIN)
 				{
 					error(recv(pollFds[i].fd, buffer, 1024, MSG_EOF), "Couldn't recieve!", 108);
 					//parseAndAdd(pollFds[i].fd, buffer);
