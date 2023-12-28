@@ -50,62 +50,6 @@ void User::checkAuths(Auth pass, Auth nick, Auth user)
 		this->auth = true;
 }
 
-int	User::checkPassword(std::string &inputPass, std::string password, int i)
-{
-	if (inputPass == password)
-	{
-		std::cout << "it's correct pass. User index is " << i << std::endl;
-		return (1);
-	}
-	return (-1);
-}
-
-// check nickname if it's already in use return -1 else return 1
-int User::checkNickName(std::string &nickName, std::vector<User> &temp)
-{
-	for(size_t i = 0; i < temp.size(); i++)
-	{
-		if (temp[i].getNickName() == nickName)
-		{
-			return (-1);
-		}
-	}
-	return (1);
-}
-
-int User::checkUser(std::vector<std::string> &splitted, Server *server)
-{
-	if (splitted.size() < 5 )
-	{
-		std::string command = "USER";
-		numeric::sendNumeric(ERR_NEEDMOREPARAMS(command), this, server);
-		return (-1);
-	}
-	for(size_t i = 1; i < splitted.size(); i++)
-	{
-		if(splitted[i] == "\r\n" || splitted[i] == "\n" || splitted[i] == "\r")
-		{
-			std::cout << "space basti" << std::endl;
-			return -1;
-		}
-		this->setUserName(splitted[1]);
-		try
-		{
-			this->setMode(stoi(splitted[2]));
-		}
-		catch(const std::exception& e)
-		{
-			return (-1);
-		}
-		this->setHostName(splitted[3]);
-		std::string realname;
-		for(size_t j = 4; j < splitted.size(); j++)
-			realname += splitted[j] + " ";
-		this->setRealName(realname);
-	}
-	return (1);
-}
-
 void	User::addChannel(Channel newChannel)
 {
 	userInChannels.push_back(newChannel);

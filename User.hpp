@@ -45,9 +45,6 @@ class User {
 		void					setRealName(std::string &real);
 		void					setFirstLogin(bool val);
 		void					setUserAuth(Auth auth, bool val);
-		int						checkPassword(std::string &inputPass, std::string password, int i);
-		int						checkNickName(std::string &nick, std::vector<User> &temp);
-		int						checkUser(std::vector<std::string> &splitted, Server *server);
 		void					addChannel(Channel newChannel);
 		std::vector<Channel>	getChannels(void);
 		void					checkAuths(Auth pass, Auth nick, Auth user);

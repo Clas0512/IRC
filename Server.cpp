@@ -144,7 +144,7 @@ void	Server::parseAndAdd(int fd, char *buffer)
 		if (*s == "PASS" && (s + 1) != e)
 		{
 			s++;
-			error(this->users[i].checkPassword(*s, this->password, i), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
+			//error(this->users[i].checkPassword(*s, this->password, i), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
 			sign++;
 		}
 		else if (*s == "NICK" && (s + 1) != e)

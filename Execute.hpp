@@ -25,7 +25,6 @@ class Execute
 		static void nick(int &fd, Server *server, strvector splitted);
 		static void join(int &fd, Server *server, strvector splitted);
 		static void cap(int &fd, Server *server, strvector splitted);
-		static void test(int &fd, Server *server, strvector splitted);
 	public:
 		Execute();
 		~Execute();
