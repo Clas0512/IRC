@@ -96,7 +96,7 @@ void	Server::parseAndExec(int fd, std::string buffer)
 	{
 		std::vector<std::string> splitted = split(buff[0], ' ');
 		 for(size_t i = 0; i < splitted.size(); i++)
-		 	std::cout << "splitted: "  << splitted[i] << std::endl;
+		 	std::cout << "splitted: "  << splitted[i] << "." << std::endl;
 		for(size_t j = 0; j < exec.getCommands().size(); j++)
 		{
 			if (exec.getCommands()[j].first == splitted[0])

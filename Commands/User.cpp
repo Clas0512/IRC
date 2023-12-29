@@ -10,7 +10,7 @@ static int checkUser(std::vector<std::string> &splitted, Server *server, User us
 	}
 	for(size_t i = 1; i < splitted.size(); i++)
 	{
-		if(splitted[i] == "\r\n" || splitted[i] == "\n" || splitted[i] == "\r")
+		if(splitted[i].empty())
 		{
 			std::cout << "space basti" << std::endl;
 			return -1;
@@ -41,7 +41,12 @@ void Execute::user(int &fd, Server *server, strvector splitted)
         return;
     }
     int tmp = checkUser(splitted, server, server->getUser(fd));
-    error(tmp, "You should enter \"USER <username> <mode> <hostname> <realname>\"", FLAG_CONTINUE);
+    if (tmp == -1)
+	{
+		std::string command = "USER";
+		numeric::sendNumeric(ERR_NEEDMOREPARAMS(command), &server->getUser(fd), server);
+		return;
+	}
     server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("USER"), true);
     std::cout << "user function called" << std::endl;
 }
