@@ -2,6 +2,7 @@
 
 Channel::Channel(std::string _id, User _admin, std::string _password) : name(_id), password(_password)
 {
+	this->isHasPass = false;
 	users.push_back(_admin);
 }
 
@@ -13,6 +14,11 @@ std::string	Channel::getName(void) const
 std::vector<User> Channel::getUsers() const
 {
 	return(this->users);
+}
+
+std::vector<User> Channel::getOperators() const
+{
+	return(this->operators);
 }
 
 void	Channel::addUser(User newUser)
@@ -33,3 +39,22 @@ std::string	Channel::getPassword(void) const
 	return (this->password);
 }
 
+User	Channel::getUser(std::string nick) const
+{
+	for (std::vector<User>::const_iterator it = users.begin(); it != users.end(); it++)
+	{
+		if (it->getNickName() == nick)
+			return (*it);
+	}
+	return (NULL);
+}
+
+bool	Channel::getIsHasPass(void) const
+{
+	return (this->isHasPass);
+}
+
+void	Channel::setIsHasPass(bool val)
+{
+	this->isHasPass = val;
+}

@@ -378,14 +378,25 @@ User &Server::getUser(int fd)
 	return (users[0]); // burayi duzelt
 }
 
+std::vector<Channel> &Server::getChannels() { return (channels); }
+
+Channel &Server::getChannel(std::string name)
+{
+	for (size_t i = 0; i < channels.size(); i++)
+		if (channels[i].getName() == name)
+			return (channels[i]);
+	return (channels[-1]); // burayi duzelt
+}
+
 std::string Server::getHostName() const { return (hostname); }
 
 std::string Server::getPassword() const { return (password); }
 
-void	Server::createChannel(std::string id, User &admin, std::string password)
+void	Server::createChannel(std::string name, User &admin, std::string password)
 {
-	Channel newChannel(id, admin, password);
+	Channel newChannel(name, admin, password);
 	this->channels.push_back(newChannel);
+	this->getChannel(name).getOperators().push_back(admin);
 	admin.addChannel(newChannel);
 }
 

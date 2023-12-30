@@ -18,6 +18,8 @@ class User;
 class Execute;
 class Channel;
 
+# define PREFIX(user) (":" + user.getNickName() + "!" + user.getUserName() + "@" + user.getHostName() + " ")
+
 using namespace Error;
 
 class Server {
@@ -35,6 +37,8 @@ class Server {
         void					addUser(int fd);
         std::vector<User>		&getUsers();
 		User					&getUser(int fd);
+		std::vector<Channel>	&getChannels();
+		Channel					&getChannel(std::string name);
         std::string				getHostName() const;
 		std::string				getPassword() const;
         void					start();
