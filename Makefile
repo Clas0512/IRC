@@ -7,7 +7,7 @@ COMMANDS = $(SRCDIR)/Commands
 OBJDIR = Obj
 
 
-SRCS = $(wildcard $(SRCDIR)/*.cpp $(COMMANDS)/*.cpp) #Channel.cpp main.cpp parser.cpp Server.cpp User.cpp 
+SRCS = $(wildcard $(SRCDIR)/*.cpp $(COMMANDS)/*.cpp)
 OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
 
 all: $(NAME)
