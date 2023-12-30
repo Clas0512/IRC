@@ -1,19 +1,23 @@
 NAME = ircserv
 CXX = c++
-CPPFLAGS = -Wall -Wextra -Werror -std=c++98
-COMMANDS = ./Commands
+CPPFLAGS = -Wall -Wextra -Werror -std=c++98 -I include
 
-SRCS = $(wildcard *.cpp $(COMMANDS)/*.cpp) #Channel.cpp main.cpp parser.cpp Server.cpp User.cpp 
-OBJS = $(SRCS:.cpp=.o)
+SRCDIR = Src
+COMMANDS = $(SRCDIR)/Commands
+OBJDIR = Obj
+
+
+SRCS = $(wildcard $(SRCDIR)/*.cpp $(COMMANDS)/*.cpp) #Channel.cpp main.cpp parser.cpp Server.cpp User.cpp 
+OBJS = $(patsubst $(SRCDIR)/%.cpp, $(OBJDIR)/%.o, $(SRCS))
 
 all: $(NAME)
 
 
 $(NAME): $(OBJS)
-	$(CXX) -o $(NAME) $(OBJS)
+	$(CXX) $(CPPFLAGS) -o $(NAME) $(OBJS)
 
-%.o: %.cpp
-	$(CXX) -c $< -o $@
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	$(CXX) $(CPPFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OBJS)

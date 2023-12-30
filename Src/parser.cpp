@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "../Includes/Server.hpp"
 #include <sstream>
 
 std::vector<std::string> split(std::string str, char delimeter)

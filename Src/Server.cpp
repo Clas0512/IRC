@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "../Includes/Server.hpp"
 #include <sstream>
 #include <stdlib.h>
 
@@ -308,7 +308,7 @@ void	Server::parseAndAdd(int fd, char *buffer)
 			// if (ic == 2)
 			// sendMessage(fd, mssgJoin);
 			std::string mssgJoin2 = ":" + this->getHostName() + " 353 " + this->users[i].getNickName() + " = " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + " :@"; //+ this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers()[i].getNickName() + "\r\n";
-			for (long j = 0; j < this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers().size(); j++)
+			for (size_t j = 0; j < this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers().size(); j++)
 			{
 				sendMessage(this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers()[j].getFd(), mssgJoin);
 				if (j == 0)

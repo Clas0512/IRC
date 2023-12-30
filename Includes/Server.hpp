@@ -5,11 +5,11 @@
 # include <unistd.h>
 # include <vector>
 # include <netdb.h>
-# include "User.hpp"
-# include "Execute.hpp"
-# include "Error.hpp"
-# include "Channel.hpp"
-# include "Numeric.hpp"
+# include "../Includes/User.hpp"
+# include "../Includes/Execute.hpp"
+# include "../Includes/Error.hpp"
+# include "../Includes/Channel.hpp"
+# include "../Includes/Numeric.hpp"
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <poll.h>
@@ -18,7 +18,7 @@ class User;
 class Execute;
 class Channel;
 
-# define PREFIX(user) (":" + user.getNickName() + "!" + user.getUserName() + "@" + user.getHostName() + " ")
+# define PREFIX(user) (":" + user.getNickName() + "!" + user.getUserName() + "@" + user.getHostName())
 
 using namespace Error;
 

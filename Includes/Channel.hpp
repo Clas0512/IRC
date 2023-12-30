@@ -3,7 +3,7 @@
 
 # include <iostream>
 # include <vector>
-# include "User.hpp"
+# include "../Includes/User.hpp"
 
 class User;
 
@@ -12,6 +12,7 @@ class Channel
 	private:
 		const std::string	name;
 		const std::string	password;
+		std::string			topic;
 		bool				isHasPass;
 		std::vector<User>	users;
 		std::vector<User>	operators;
@@ -21,10 +22,13 @@ class Channel
 		void				addUser(User newUser);
 		bool				getIsHasPass(void) const;
 		void				setIsHasPass(bool val);
+		void				setTopic(std::string topic);
 		std::vector<User>	getOperators() const;
 		std::vector<User> 	getUsers() const;
 		User				getUser(std::string nick) const;
+		User				getOperator(User user);
 		std::string			getName(void) const;
+		std::string			getTopic(void) const;
 		std::string			getPassword(void) const;
 };
 

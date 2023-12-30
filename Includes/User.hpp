@@ -3,9 +3,9 @@
 
 # include <iostream>
 # include <map>
-# include "Channel.hpp"
-# include "Execute.hpp"
-# include "Numeric.hpp"
+# include "../Includes/Channel.hpp"
+# include "../Includes/Execute.hpp"
+# include "../Includes/Numeric.hpp"
 
 class Channel;
 

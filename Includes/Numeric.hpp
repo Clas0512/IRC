@@ -1,8 +1,8 @@
 #ifndef NUMERIC_HPP
 # define NUMERIC_HPP
 
-# include "Server.hpp"
-# include "User.hpp"
+# include "../Includes/Server.hpp"
+# include "../Includes/User.hpp"
 
 
 class Server;
