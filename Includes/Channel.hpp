@@ -13,6 +13,7 @@ class Channel
 		const std::string	name;
 		const std::string	password;
 		std::string			topic;
+		std::string			owner;
 		bool				isHasPass;
 		std::vector<User>	users;
 		std::vector<User>	operators;

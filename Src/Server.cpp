@@ -138,7 +138,7 @@ void	Server::parseAndAdd(int fd, char *buffer)
 	std::vector<std::string>::iterator s = words.begin();
 	std::vector<std::string>::iterator e = words.end();
 	int sign = 0;
-	int ic = 0;
+	//int ic = 0;
 	while (s != e)
 	{
 		if (*s == "PASS" && (s + 1) != e)
@@ -289,7 +289,7 @@ void	Server::parseAndAdd(int fd, char *buffer)
 		// ( "=" / "*" / "@" ) <channel>
         //        :[ "@" / "+" ] <nick> *( " " [ "@" / "+" ] <nick> )
 		
-		ic++;
+		//ic++;
 		
 		std::string mssgJoin = ":" + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + "localhost" + " JOIN " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + "\r\n";
 		sendMessage(fd, mssgJoin);
