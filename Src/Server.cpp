@@ -378,6 +378,15 @@ User &Server::getUser(int fd)
 	return (users[0]); // burayi duzelt
 }
 
+User &Server::getUser(std::string nickname)
+{
+	for (size_t i = 0; i < users.size(); i++)
+		if (users[i].getNickName() == nickname)
+			return (users[i]);
+	return (users[0]); // burayi duzelt
+}
+
+
 std::vector<Channel> &Server::getChannels() { return (channels); }
 
 Channel &Server::getChannel(std::string name)

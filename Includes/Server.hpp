@@ -37,6 +37,7 @@ class Server {
         void					addUser(int fd);
         std::vector<User>		&getUsers();
 		User					&getUser(int fd);
+		User					&getUser(std::string nickname);
 		std::vector<Channel>	&getChannels();
 		Channel					&getChannel(std::string name);
         std::string				getHostName() const;
