@@ -50,12 +50,12 @@ void User::checkAuths(Auth pass, Auth nick, Auth user)
 		this->auth = true;
 }
 
-void	User::addChannel(Channel newChannel)
+void	User::addChannel(Channel *newChannel)
 {
 	userInChannels.push_back(newChannel);
 }
 
-std::vector<Channel>	User::getChannels(void)
+std::vector<Channel *>	User::getChannels(void)
 {
 	return (this->userInChannels);
 }

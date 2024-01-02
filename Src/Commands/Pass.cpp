@@ -12,12 +12,12 @@ static int	checkPassword(std::string &inputPass, std::string password, int i)
 
 void	Execute::pass(int &fd, Server *server, strvector splitted)
 {
-    if (server->getUser(fd).getUserAuths("PASS").second == true && server->getUser(fd).getUserAuth() == true)
+    if (server->getServerUser(fd)->getUserAuths("PASS").second == true && server->getServerUser(fd)->getUserAuth() == true)
     {
-        numeric::sendNumeric(ERR_ALREADYREGISTRED, &server->getUser(fd), server);
+        numeric::sendNumeric(ERR_ALREADYREGISTRED, server->getServerUser(fd), server);
         return;
     }
-    error(checkPassword(splitted[1], server->getPassword(), server->getUsers().size()), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
-    server->getUser(fd).setUserAuth(server->getUser(fd).getUserAuths("PASS"), true);
+    error(checkPassword(splitted[1], server->getServerPassword(), server->getServerUsers().size()), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
+    server->getServerUser(fd)->setUserAuth(server->getServerUser(fd)->getUserAuths("PASS"), true);
     std::cout << "pass func called" << std::endl;
 }

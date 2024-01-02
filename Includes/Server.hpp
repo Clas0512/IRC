@@ -18,7 +18,7 @@ class User;
 class Execute;
 class Channel;
 
-# define PREFIX(user) (":" + user.getNickName() + "!" + user.getUserName() + "@" + user.getHostName())
+# define PREFIX(user) (":" + user->getNickName() + "!" + user->getUserName() + "@" + user->getHostName())
 
 using namespace Error;
 
@@ -28,28 +28,28 @@ class Server {
 		int port;
 		std::string				password;
         std::string				hostname;
-        std::vector<User>		users;
-        std::vector<Channel>	channels;
+        std::vector<User*>		serverUsers;
+        std::vector<Channel*>	serverChannels;
 		std::string				time;
     public:
         Server(char **av);
         ~Server();
         void					addUser(int fd);
-        std::vector<User>		&getUsers();
-		User					&getUser(int fd);
-		User					&getUser(std::string nickname);
-		std::vector<Channel>	&getChannels();
-		Channel					&getChannel(std::string name);
-        std::string				getHostName() const;
-		std::string				getPassword() const;
+        std::vector<User*>		&getServerUsers();
+		std::vector<Channel*>	&getServerChannels();
+		User*					getServerUser(int fd);
+		User*					getServerUser(std::string nickname);
+		Channel*				getServerChannel(std::string name);
+        std::string				getServerHostName() const;
+		std::string				getServerPassword() const;
         void					start();
 		void					parseAndAdd(int fd, char *buffer);
 		void					sendMessage(int fd, std::string messg);
-		void					createChannel(std::string id, User &admin, std::string password);
+		void					createChannel(std::string id, User *admin, std::string password);
 		long					getUserIndexByFd(int fd);
 		long					getChannelIndexByName(std::string name) const;
 		long					getChannelIndexByPass(std::string id) const;
-		void					joinChannel(std::string id, User &nickname);
+		void					joinChannel(std::string id, User *nickname);
 		void					parseAndExec(int fd, std::string buffer);
 		std::string				getTime(void);
 };

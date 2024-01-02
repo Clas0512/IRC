@@ -6,10 +6,10 @@ int main(int ac, char **av)
 {
 	if (ac == 3)
 	{
-		Server mainServer(av);
+		Server *mainServer = new Server((av));
 		while (true)
 		{
-			mainServer.start();
+			mainServer->start();
 		}
 	}
 	else

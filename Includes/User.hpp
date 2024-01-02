@@ -19,7 +19,7 @@ class User {
         std::string				userName;
 		std::string				realName;
 		std::string				hostName;
-		std::vector<Channel>	userInChannels;
+		std::vector<Channel *>	userInChannels;
 		bool					firstLogin;
 		bool					cap;
 		bool					auth;
@@ -45,8 +45,8 @@ class User {
 		void					setRealName(std::string &real);
 		void					setFirstLogin(bool val);
 		void					setUserAuth(Auth auth, bool val);
-		void					addChannel(Channel newChannel);
-		std::vector<Channel>	getChannels(void);
+		void					addChannel(Channel *newChannel);
+		std::vector<Channel *>	getChannels(void);
 		void					checkAuths(Auth pass, Auth nick, Auth user);
 };
 

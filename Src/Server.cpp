@@ -29,8 +29,8 @@ Server::~Server() {}
 
 void Server::addUser(int fd)
 {
-	users.push_back(User(fd));
-	std::cout << users[0].getUserName() << std::endl;
+	User *tmp = new User(fd);
+	serverUsers.push_back(tmp);
 }
 
 /*
@@ -68,13 +68,13 @@ void Server::start()
 				memset(buffer, 0, 1024);
 				if (pollFds[i].revents == 0)
 					continue;
-				if (pollFds[i].revents != POLLIN) // BURAYA KULLANICI SİLMEKTE EKLENECEK ÖNEMLİ !!!
+				if (pollFds[i].revents != POLLIN) //------------------------------------------------------- BURAYA KULLANICI SİLMEKTE EKLENECEK ÖNEMLİ !!!
 				{
 					std::cout << "A user disconnected!" << std::endl;
 					close(pollFds[i].fd);
 					pollFds.erase(pollFds.begin() + i);
 					i--;
-				}
+				} // ----------------------------------------------------------------------------------------
 				else if (pollFds[i].revents & POLLIN)
 				{
 					error(recv(pollFds[i].fd, buffer, 1024, MSG_EOF), "Couldn't recieve!", 108);
@@ -88,250 +88,254 @@ void Server::start()
 	}
 }
 
-void	Server::parseAndExec(int fd, std::string buffer)
+void	Server::parseAndExec(int userFd, std::string buffer)
 {
 	Execute exec;
+	std::cout << "asd\n";
 	std::vector<std::string> buff = parser(buffer);
+	std::cout << "vbzxcxzc\n";
 	for(size_t i = 0; i < buff.size(); i++)
 	{
 		std::vector<std::string> splitted = split(buff[0], ' ');
-		 for(size_t i = 0; i < splitted.size(); i++)
-		 	std::cout << "splitted: "  << splitted[i] << "." << std::endl;
+		// ---------------------------------------------------------------------------
+		for(size_t i = 0; i < splitted.size(); i++)
+			std::cout << "splitted: "  << splitted[i] << "." << std::endl;
+		// ---------------------------------------------------------------------------
 		for(size_t j = 0; j < exec.getCommands().size(); j++)
 		{
 			if (exec.getCommands()[j].first == splitted[0])
 			{
-				exec.getCommands()[j].second(fd, this, splitted);
-				if(this->getUser(fd).getUserAuth() == true && this->getUser(fd).getFirstLogin() == true)
+				exec.getCommands()[j].second(userFd, this, splitted);
+				if(this->getServerUser(userFd)->getUserAuth() == true && this->getServerUser(userFd)->getFirstLogin() == true)
 				{
-					this->getUser(fd).setFirstLogin(false);
-					std::string nickname = this->getUser(fd).getNickName();
-					std::string username = this->getUser(fd).getUserName();
-					std::string hostname = this->getHostName();
+					this->getServerUser(userFd)->setFirstLogin(false);																// ------------------------------ extra fonksiyona atılacak ---------------------------------------------
+					std::string nickname = this->getServerUser(userFd)->getNickName();
+					std::string username = this->getServerUser(userFd)->getUserName();
+					std::string hostname = this->getServerHostName();
 					std::string time = getTime();
-					numeric::sendNumeric(RPL_WELCOME(nickname, username, hostname), &(this->getUser(fd)), this);
-					numeric::sendNumeric(RPL_YOURHOST(nickname, hostname), &(this->getUser(fd)), this);
-					numeric::sendNumeric(RPL_CREATED(nickname, time), &(this->getUser(fd)), this);
+					numeric::sendNumeric(RPL_WELCOME(nickname, username, hostname), this->getServerUser(userFd), this);
+					numeric::sendNumeric(RPL_YOURHOST(nickname, hostname), this->getServerUser(userFd), this);
+					numeric::sendNumeric(RPL_CREATED(nickname, time), this->getServerUser(userFd), this);
 				}
 			}
 		}
 	}
 }
 
-void	Server::parseAndAdd(int fd, char *buffer)
-{
-	bool isJoin = false;
-	bool isFirst = false;
-	long i = getUserIndexByFd(fd);
-	if (i == -1)
-	{
-		perror("Filedescriptor is not valid. Olamaaz programi durdurun !!!?!");
-		exit(1111);
-	}
-	std::string buff(buffer);
-	std::istringstream ss(buff);
-	std::vector<std::string> words;
-	std::string word;
-    while (ss >> word) {
-        words.push_back(word);
-    }
-	std::vector<std::string>::iterator s = words.begin();
-	std::vector<std::string>::iterator e = words.end();
-	int sign = 0;
-	//int ic = 0;
-	while (s != e)
-	{
-		if (*s == "PASS" && (s + 1) != e)
-		{
-			s++;
-			//error(this->users[i].checkPassword(*s, this->password, i), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
-			sign++;
-		}
-		else if (*s == "NICK" && (s + 1) != e)
-		{
-			s++;
-			std::string nick(*s);
-			// if(checkNickName(nick) == -1)
-			// {
-			// 	std::string messg = ": 433 : " + this->users[i].getUserName() + " " + nick + " :Nickname is already in use\r\n";
-			// 	sendMessage(fd, messg);
-			// }
-			//else
-				this->users[i].setNickName(nick);
-			sign++;
-		}
-		else if (*s == "USER" && (s + 1) != e)
-		{
-			s++;
-			std::string user(*s);
-			this->users[i].setUserName(user);
-			sign++;
-		}
+// void	Server::parseAndAdd(int fd, char *buffer)
+// {
+// 	bool isJoin = false;
+// 	bool isFirst = false;
+// 	long i = getUserIndexByFd(fd);
+// 	if (i == -1)
+// 	{
+// 		perror("Filedescriptor is not valid. Olamaaz programi durdurun !!!?!");
+// 		exit(1111);
+// 	}
+// 	std::string buff(buffer);
+// 	std::istringstream ss(buff);
+// 	std::vector<std::string> words;
+// 	std::string word;
+//     while (ss >> word) {
+//         words.push_back(word);
+//     }
+// 	std::vector<std::string>::iterator s = words.begin();
+// 	std::vector<std::string>::iterator e = words.end();
+// 	int sign = 0;
+// 	//int ic = 0;
+// 	while (s != e)
+// 	{
+// 		if (*s == "PASS" && (s + 1) != e)
+// 		{
+// 			s++;
+// 			//error(this->serverUsers[i].checkPassword(*s, this->password, i), "Wrong Password! Please enter correct password.", FLAG_CONTINUE);
+// 			sign++;
+// 		}
+// 		else if (*s == "NICK" && (s + 1) != e)
+// 		{
+// 			s++;
+// 			std::string nick(*s);
+// 			// if(checkNickName(nick) == -1)
+// 			// {
+// 			// 	std::string messg = ": 433 : " + this->serverUsers[i].getUserName() + " " + nick + " :Nickname is already in use\r\n";
+// 			// 	sendMessage(fd, messg);
+// 			// }
+// 			//else
+// 				this->serverUsers[i].setNickName(nick);
+// 			sign++;
+// 		}
+// 		else if (*s == "USER" && (s + 1) != e)
+// 		{
+// 			s++;
+// 			std::string user(*s);
+// 			this->serverUsers[i].setUserName(user);
+// 			sign++;
+// 		}
 
-		// GECİCİ KOMUTLAR
+// 		// GECİCİ KOMUTLAR
 
 
-		if (*s == "USERLIST")
-		{
-			std::vector<User> temp = getUsers();
-			std::vector<User>::iterator b = temp.begin();
-			std::vector<User>::iterator e = temp.end();
-			while (b != e)
-			{
-				std::string tempMessg((*b).getUserName());
-				std::cout << (*b).getUserName() << std::endl;
-				sendMessage(fd, tempMessg);
-				b++;
-			}
-		}
+// 		if (*s == "USERLIST")
+// 		{
+// 			std::vector<User> temp = getServerUsers();
+// 			std::vector<User>::iterator b = temp.begin();
+// 			std::vector<User>::iterator e = temp.end();
+// 			while (b != e)
+// 			{
+// 				std::string tempMessg((*b).getUserName());
+// 				std::cout << (*b).getUserName() << std::endl;
+// 				sendMessage(fd, tempMessg);
+// 				b++;
+// 			}
+// 		}
 		
-		if (*s == "JOIN" && (s + 1) != e && (s + 2) != e)
-		{
-			s++;
-			int channelId = getChannelIndexByName(*s);
-			std::cout << "channel id: " << channelId << std::endl;
-			if (!((*s).size() > 2 && (*s)[0] == '#'))
-			{
-				std::cout << "Channel id is not valid!" << std::endl;
-				return ;
-			}
-			if (channelId == -1)
-			{
-				createChannel(*s, users[i], *(s + 1));
-				std::cout << this->users[i].getChannels().size() << "\n";
-				isJoin = true;
-				isFirst = true;
-			}
-			else
-			{
-				if (channels[channelId].checkPassword(*(s + 1)) == false)
-				{
-					std::cout << "Invalid password!" << std::endl;
-					break ;
-				}
-				joinChannel(*s, users[i]);
-				users[i].addChannel(channels[channelId]);
-				for (size_t j = 0; j < users.size(); j++)
-				{
-					User temp = channels[channelId].getUsers()[j];
-					users[j].getChannels()[users[j].getChannels().size() - 1].addUser(temp);
-					// users[j].getChannels()[users[j].getChannels().size() - 1].addUser(temp);
-				}
+// 		if (*s == "JOIN" && (s + 1) != e && (s + 2) != e)
+// 		{
+// 			s++;
+// 			int channelId = getChannelIndexByName(*s);
+// 			std::cout << "channel id: " << channelId << std::endl;
+// 			if (!((*s).size() > 2 && (*s)[0] == '#'))
+// 			{
+// 				std::cout << "Channel id is not valid!" << std::endl;
+// 				return ;
+// 			}
+// 			if (channelId == -1)
+// 			{
+// 				createChannel(*s, serverUsers[i], *(s + 1));
+// 				std::cout << this->serverUsers[i].getServerChannels().size() << "\n";
+// 				isJoin = true;
+// 				isFirst = true;
+// 			}
+// 			else
+// 			{
+// 				if (serverChannels[channelId].checkPassword(*(s + 1)) == false)
+// 				{
+// 					std::cout << "Invalid password!" << std::endl;
+// 					break ;
+// 				}
+// 				joinChannel(*s, serverUsers[i]);
+// 				serverUsers[i].addChannel(serverChannels[channelId]);
+// 				for (size_t j = 0; j < serverUsers.size(); j++)
+// 				{
+// 					User temp = serverChannels[channelId].getServerUsers()[j];
+// 					serverUsers[j].getServerChannels()[serverUsers[j].getServerChannels().size() - 1].addUser(temp);
+// 					// serverUsers[j].getServerChannels()[serverUsers[j].getServerChannels().size() - 1].addUser(temp);
+// 				}
 				
-				isJoin = true;
-			}
-		}
+// 				isJoin = true;
+// 			}
+// 		}
 		
-		if (*s == "CLIST" && (s + 1) != e)
-		{
-			int id = getChannelIndexByName(*(s + 1));
-			error(id, "Channel id is not valid!", FLAG_CONTINUE);
-			if (id == -1)
-				break ;
-			std::vector<User> temp = channels[id].getUsers();
-			std::vector<User>::iterator b = temp.begin();
-			std::vector<User>::iterator e = temp.end();
-			while (b != e)
-			{
-				std::string tempMessg((*b).getUserName());
-				std::cout << (*b).getUserName() << std::endl;
-				sendMessage(fd, tempMessg);
-				b++;
-			}
-		}
+	// 	if (*s == "CLIST" && (s + 1) != e)
+	// 	{
+	// 		int id = getChannelIndexByName(*(s + 1));
+	// 		error(id, "Channel id is not valid!", FLAG_CONTINUE);
+	// 		if (id == -1)
+	// 			break ;
+	// 		std::vector<User> temp = serverChannels[id].getServerUsers();
+	// 		std::vector<User>::iterator b = temp.begin();
+	// 		std::vector<User>::iterator e = temp.end();
+	// 		while (b != e)
+	// 		{
+	// 			std::string tempMessg((*b).getUserName());
+	// 			std::cout << (*b).getUserName() << std::endl;
+	// 			sendMessage(fd, tempMessg);
+	// 			b++;
+	// 		}
+	// 	}
 
-		if (*s == "PRIVMSG" && (s + 1) != e && (s + 2) != e)
-		{
-			s++;
-			int ChannelIndex = getChannelIndexByPass(*s);
-			for (size_t j = 0; j < users[i].getChannels()[users[i].getChannels().size() - 1].getUsers().size(); j++)
-			{
-				std::cout << "firdim" << "\n";
-				// server->getUser(fd)) + " PRIVMSG " + toWho + " " + msg);
-				std::string mssgPrv = ":" + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + "localhost" + " PRIVMSG " + channels[ChannelIndex].getName() + " :" + *(s + 1) + "\r\n";
-				sendMessage(users[i].getChannels()[users[i].getChannels().size() - 1].getUsers()[j].getFd(), mssgPrv);
-			}
+	// 	if (*s == "PRIVMSG" && (s + 1) != e && (s + 2) != e)
+	// 	{
+	// 		s++;
+	// 		int ChannelIndex = getChannelIndexByPass(*s);
+	// 		for (size_t j = 0; j < serverUsers[i].getServerChannels()[serverUsers[i].getServerChannels().size() - 1].getServerUsers().size(); j++)
+	// 		{
+	// 			std::cout << "firdim" << "\n";
+	// 			// server->getServerUser(fd)) + " PRIVMSG " + toWho + " " + msg);
+	// 			std::string mssgPrv = ":" + this->serverUsers[i].getNickName() + "!" + this->serverUsers[i].getUserName() + "@" + "localhost" + " PRIVMSG " + serverChannels[ChannelIndex].getName() + " :" + *(s + 1) + "\r\n";
+	// 			sendMessage(serverUsers[i].getServerChannels()[serverUsers[i].getServerChannels().size() - 1].getServerUsers()[j].getFd(), mssgPrv);
+	// 		}
 			
-		}
+	// 	}
 
-		std::cout << "-----------------------------------" << "\n";
-		for (size_t j = 0; j < users.size(); j++)
-		{
-			std::cout << users[j].getNickName() << "\n" << "\n";
-			for (size_t h = 0; h < users[j].getChannels().size(); h++)
-			{
-				for (size_t k = 0; k < users[j].getChannels()[h].getUsers().size(); k++)
-				{
-					std::cout << users[j].getChannels()[h].getUsers()[k].getNickName() << std::endl;
-				}
-			}
-			std::cout << "\n";
-		}
+	// 	std::cout << "-----------------------------------" << "\n";
+	// 	for (size_t j = 0; j < serverUsers.size(); j++)
+	// 	{
+	// 		std::cout << serverUsers[j].getNickName() << "\n" << "\n";
+	// 		for (size_t h = 0; h < serverUsers[j].getServerChannels().size(); h++)
+	// 		{
+	// 			for (size_t k = 0; k < serverUsers[j].getServerChannels()[h].getServerUsers().size(); k++)
+	// 			{
+	// 				std::cout << serverUsers[j].getServerChannels()[h].getServerUsers()[k].getNickName() << std::endl;
+	// 			}
+	// 		}
+	// 		std::cout << "\n";
+	// 	}
 		
 
-		// ------------------------------------------------------
-		s++;
-	}
-	if (sign == 3)
-	{
-		// macroyla olusturulacak
-		// std::string messg = ": 001 : " + this->users[i].getUserName() + " Welcome to the Internet Relay Network " + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + this->getServerName() + "\r\n"; 
-		// sendMessage(fd, messg);
-		numeric::sendNumeric(RPL_WELCOME(users[i].getNickName(), users[i].getUserName(), getHostName()), &(this->users[i]), this);
-		numeric::sendNumeric(RPL_YOURHOST(users[i].getNickName(), getHostName()), &(this->users[i]), this);
-		numeric::sendNumeric(RPL_CREATED(users[i].getNickName(), this->getTime()), &(this->users[i]), this);
-	}
-	if (isJoin == true)
-	{
-		// std::string messg = ": 331 :" + this->users[i].getUserName() + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + " " + ":topic" + "\r\n";
-		// std::string message = ": 331 : " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + ":No topic is set" + "\r\n";
-		// sendMessage(fd, message);
-		// ( "=" / "*" / "@" ) <channel>
-        //        :[ "@" / "+" ] <nick> *( " " [ "@" / "+" ] <nick> )
+	// 	// ------------------------------------------------------
+	// 	s++;
+	// }
+// 	if (sign == 3)
+// 	{
+// 		// macroyla olusturulacak
+// 		// std::string messg = ": 001 : " + this->serverUsers[i].getUserName() + " Welcome to the Internet Relay Network " + this->serverUsers[i].getNickName() + "!" + this->serverUsers[i].getUserName() + "@" + this->getServerName() + "\r\n"; 
+// 		// sendMessage(fd, messg);
+// 		numeric::sendNumeric(RPL_WELCOME(serverUsers[i].getNickName(), serverUsers[i].getUserName(), getServerHostName()), &(this->serverUsers[i]), this);
+// 		numeric::sendNumeric(RPL_YOURHOST(serverUsers[i].getNickName(), getServerHostName()), &(this->serverUsers[i]), this);
+// 		numeric::sendNumeric(RPL_CREATED(serverUsers[i].getNickName(), this->getTime()), &(this->serverUsers[i]), this);
+// 	}
+// 	if (isJoin == true)
+// 	{
+// 		// std::string messg = ": 331 :" + this->serverUsers[i].getUserName() + (*this).serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getName() + " " + ":topic" + "\r\n";
+// 		// std::string message = ": 331 : " + (*this).serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getName() + ":No topic is set" + "\r\n";
+// 		// sendMessage(fd, message);
+// 		// ( "=" / "*" / "@" ) <channel>
+//         //        :[ "@" / "+" ] <nick> *( " " [ "@" / "+" ] <nick> )
 		
-		//ic++;
+// 		//ic++;
 		
-		std::string mssgJoin = ":" + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + "localhost" + " JOIN " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + "\r\n";
-		sendMessage(fd, mssgJoin);
-		if (isFirst == true)
-		{
-			// [!] BUFFER: :nickim!userim@localhost JOIN #5187 3131
-			// [!] BUFFER: :nickim!userim@localhost MODE #5187 3131 +o nickim
-			// [!] BUFFER: :k1m01s02.42istanbul.com.tr 331 nickim #5187 3131 :No topic is set
-			std::string mssgJoin2 = ":" + this->users[i].getNickName() + "!" + this->users[i].getUserName() + "@" + "localhost" + " MODE " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + " +o " + this->users[i].getNickName() + "\r\n";
-			sendMessage(fd, mssgJoin2);
-			std::string mssg = ":" + this->getHostName() + " 331 " + this->getUsers()[i].getNickName() + " " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + " :" + "No topic is set" + "\r\n";
-			sendMessage(fd, mssg);
-		}
-		else
-		{
-			// if (ic == 2)
-			// sendMessage(fd, mssgJoin);
-			std::string mssgJoin2 = ":" + this->getHostName() + " 353 " + this->users[i].getNickName() + " = " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + " :@"; //+ this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers()[i].getNickName() + "\r\n";
-			for (size_t j = 0; j < this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers().size(); j++)
-			{
-				sendMessage(this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers()[j].getFd(), mssgJoin);
-				if (j == 0)
-					mssgJoin2 = mssgJoin2 + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers()[j].getNickName();
-				else
-					mssgJoin2 = mssgJoin2 + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getUsers()[j].getNickName();
-			}
-			mssgJoin2 = mssgJoin2 + "\r\n";
+// 		std::string mssgJoin = ":" + this->serverUsers[i].getNickName() + "!" + this->serverUsers[i].getUserName() + "@" + "localhost" + " JOIN " + this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getName() + " " + this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getPassword() + "\r\n";
+// 		sendMessage(fd, mssgJoin);
+// 		if (isFirst == true)
+// 		{
+// 			// [!] BUFFER: :nickim!userim@localhost JOIN #5187 3131
+// 			// [!] BUFFER: :nickim!userim@localhost MODE #5187 3131 +o nickim
+// 			// [!] BUFFER: :k1m01s02.42istanbul.com.tr 331 nickim #5187 3131 :No topic is set
+// 			std::string mssgJoin2 = ":" + this->serverUsers[i].getNickName() + "!" + this->serverUsers[i].getUserName() + "@" + "localhost" + " MODE " + this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getName() + " " + this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getPassword() + " +o " + this->serverUsers[i].getNickName() + "\r\n";
+// 			sendMessage(fd, mssgJoin2);
+// 			std::string mssg = ":" + this->getServerHostName() + " 331 " + this->getServerUsers()[i].getNickName() + " " + (*this).serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getName() + " " + this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getPassword() + " :" + "No topic is set" + "\r\n";
+// 			sendMessage(fd, mssg);
+// 		}
+// 		else
+// 		{
+// 			// if (ic == 2)
+// 			// sendMessage(fd, mssgJoin);
+// 			std::string mssgJoin2 = ":" + this->getServerHostName() + " 353 " + this->serverUsers[i].getNickName() + " = " + (*this).serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getName() + " " + this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getPassword() + " :@"; //+ this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getServerUsers()[i].getNickName() + "\r\n";
+// 			for (size_t j = 0; j < this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getServerUsers().size(); j++)
+// 			{
+// 				sendMessage(this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getServerUsers()[j].getFd(), mssgJoin);
+// 				if (j == 0)
+// 					mssgJoin2 = mssgJoin2 + this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getServerUsers()[j].getNickName();
+// 				else
+// 					mssgJoin2 = mssgJoin2 + " " + this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getServerUsers()[j].getNickName();
+// 			}
+// 			mssgJoin2 = mssgJoin2 + "\r\n";
 			
-			sendMessage(fd, mssgJoin2);
-			std::string mssg = ":" + this->getHostName() + " 331 " + this->getUsers()[i].getNickName() + " " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + " " + this->users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + " :" + "No topic is set" + "\r\n";
-			sendMessage(fd, mssg);
-			// [!] BUFFER: :k1m01s02.42istanbul.com.tr 366 newbie|2 #ad 123 :End of /NAMES list
-			// :k1m01s02.42istanbul.com.tr 366 nickim #4542 3131 :End of /NAMES list
-			std::string mssg1 = ":" + this->getHostName() + " 366 " + this->getUsers()[i].getNickName() + " " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + " " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getPassword() + " :End of /NAMES list" + "\r\n";
-			sendMessage(fd, mssg1);
-		}
-		//messg = ": 353 : " + this->users[i].getUserName() + " = " + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + " : " + this->users[i].getNickName() + "\r\n";
-		//sendMessage(fd, messg);
-		//messg = ": 366 : " + this->users[i].getUserName() + (*this).users[i].getChannels()[this->users[i].getChannels().size() - 1].getName() + "\r\n";
-		//sendMessage(fd, messg);
-	}
-}
+// 			sendMessage(fd, mssgJoin2);
+// 			std::string mssg = ":" + this->getServerHostName() + " 331 " + this->getServerUsers()[i].getNickName() + " " + (*this).serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getName() + " " + this->serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getPassword() + " :" + "No topic is set" + "\r\n";
+// 			sendMessage(fd, mssg);
+// 			// [!] BUFFER: :k1m01s02.42istanbul.com.tr 366 newbie|2 #ad 123 :End of /NAMES list
+// 			// :k1m01s02.42istanbul.com.tr 366 nickim #4542 3131 :End of /NAMES list
+// 			std::string mssg1 = ":" + this->getServerHostName() + " 366 " + this->getServerUsers()[i].getNickName() + " " + (*this).serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getName() + " " + (*this).serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getPassword() + " :End of /NAMES list" + "\r\n";
+// 			sendMessage(fd, mssg1);
+// 		}
+// 		//messg = ": 353 : " + this->serverUsers[i].getUserName() + " = " + (*this).serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getName() + " : " + this->serverUsers[i].getNickName() + "\r\n";
+// 		//sendMessage(fd, messg);
+// 		//messg = ": 366 : " + this->serverUsers[i].getUserName() + (*this).serverUsers[i].getServerChannels()[this->serverUsers[i].getServerChannels().size() - 1].getName() + "\r\n";
+// 		//sendMessage(fd, messg);
+// 	}
+// }
 
 void Server::sendMessage(int fd, std::string messg)
 {
@@ -342,17 +346,17 @@ void Server::sendMessage(int fd, std::string messg)
 
 long	Server::getUserIndexByFd(int fd)
 {
-	for (size_t i = 0; i < users.size(); i++)
-		if (users[i].getFd() == fd)
+	for (size_t i = 0; i < serverUsers.size(); i++)
+		if (serverUsers[i]->getFd() == fd)
 			return (i);
 	return (-1);
 }
 
 long	Server::getChannelIndexByName(std::string name) const
 {
-	for (size_t i = 0; i < channels.size(); i++)
+	for (size_t i = 0; i < serverChannels.size(); i++)
 	{
-		if (channels[i].getName() == name)
+		if (serverChannels[i]->getName() == name)
 			return (i);
 	}
 	return (-1);
@@ -360,66 +364,66 @@ long	Server::getChannelIndexByName(std::string name) const
 
 long	Server::getChannelIndexByPass(std::string id) const
 {
-	for (size_t i = 0; i < channels.size(); i++)
+	for (size_t i = 0; i < serverChannels.size(); i++)
 	{
-		if (channels[i].getPassword() == id)
+		if (serverChannels[i]->getPassword() == id)
 			return (i);
 	}
 	return (-1);
 }
 
-std::vector<User> &Server::getUsers() { return (users); }
+std::vector<User*> &Server::getServerUsers() { return (serverUsers); }
 
-User &Server::getUser(int fd)
+User *Server::getServerUser(int fd)
 {
-	for (size_t i = 0; i < users.size(); i++)
-		if (users[i].getFd() == fd)
-			return (users[i]);
-	return (users[0]); // burayi duzelt
+	for (size_t i = 0; i < serverUsers.size(); i++)
+		if (serverUsers[i]->getFd() == fd)
+			return (serverUsers[i]);
+	return (NULL);
 }
 
-User &Server::getUser(std::string nickname)
+User *Server::getServerUser(std::string nickname)
 {
-	for (size_t i = 0; i < users.size(); i++)
-		if (users[i].getNickName() == nickname)
-			return (users[i]);
-	return (users[0]); // burayi duzelt
+	for (size_t i = 0; i < serverUsers.size(); i++)
+		if (serverUsers[i]->getNickName() == nickname)
+			return (serverUsers[i]);
+	return (NULL);
 }
 
 
-std::vector<Channel> &Server::getChannels() { return (channels); }
+std::vector<Channel*> &Server::getServerChannels() { return (serverChannels); }
 
-Channel &Server::getChannel(std::string name)
+Channel *Server::getServerChannel(std::string name)
 {
-	for (size_t i = 0; i < channels.size(); i++)
-		if (channels[i].getName() == name)
-			return (channels[i]);
-	return (channels[-1]); // burayi duzelt
+	for (size_t i = 0; i < serverChannels.size(); i++)
+		if (serverChannels[i]->getName() == name)
+			return (serverChannels[i]);
+	return (NULL);
 }
 
-std::string Server::getHostName() const { return (hostname); }
+std::string Server::getServerHostName() const { return (hostname); }
 
-std::string Server::getPassword() const { return (password); }
+std::string Server::getServerPassword() const { return (password); }
 
-void	Server::createChannel(std::string name, User &admin, std::string password)
+void	Server::createChannel(std::string name, User *admin, std::string password)
 {
-	Channel newChannel(name, admin, password);
-	this->channels.push_back(newChannel);
-	this->getChannel(name).getOperators().push_back(admin);
-	admin.addChannel(newChannel);
+	Channel *tmp = new Channel(name, admin, password);
+	this->serverChannels.push_back(tmp);
+	this->getServerChannel(name)->getOperators().push_back(admin);
+	admin->addChannel(tmp);
 }
 
-void	Server::joinChannel(std::string id, User &nickname)
+void	Server::joinChannel(std::string channelName, User *user)
 {
-	int idf = getChannelIndexByName(id);
-	std::vector<User> temp = this->channels[idf].getUsers();
+	int index = getChannelIndexByName(channelName);
+	std::vector<User*> temp = this->serverChannels[index]->getUsers();
 	for (size_t i = 0; i < temp.size(); i++)
-		if (temp[i].getFd() == nickname.getFd())
+		if (temp[i]->getFd() == user->getFd())
 		{
 			std::cout << "User is already exist!" << std::endl;
 			return ;
 		}
-	this->channels[idf].addUser(nickname);
+	this->serverChannels[index]->addUser(user);
 }
 
 std::string getCurrentTime()
