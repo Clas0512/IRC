@@ -79,7 +79,7 @@ void Server::start()
 				{
 					error(recv(pollFds[i].fd, buffer, 1024, MSG_EOF), "Couldn't recieve!", 108);
 					//parseAndAdd(pollFds[i].fd, buffer);
-					std::cout << "girdi: " << buffer << std::endl;
+					std::cout << "fd : " << pollFds[i].fd << " girdi: " << buffer << std::endl;
 					std::string buff = buffer;
 					parseAndExec(pollFds[i].fd, buff);
 				}
@@ -91,15 +91,13 @@ void Server::start()
 void	Server::parseAndExec(int userFd, std::string buffer)
 {
 	Execute exec;
-	std::cout << "asd\n";
 	std::vector<std::string> buff = parser(buffer);
-	std::cout << "vbzxcxzc\n";
 	for(size_t i = 0; i < buff.size(); i++)
 	{
 		std::vector<std::string> splitted = split(buff[0], ' ');
 		// ---------------------------------------------------------------------------
-		for(size_t i = 0; i < splitted.size(); i++)
-			std::cout << "splitted: "  << splitted[i] << "." << std::endl;
+		// for(size_t i = 0; i < splitted.size(); i++)
+		// 	std::cout << << "splitted: "  << splitted[i] << "." << std::endl;
 		// ---------------------------------------------------------------------------
 		for(size_t j = 0; j < exec.getCommands().size(); j++)
 		{
@@ -339,7 +337,7 @@ void	Server::parseAndExec(int userFd, std::string buffer)
 
 void Server::sendMessage(int fd, std::string messg)
 {
-	std::cout << "send func:" << messg << " to " << fd << std::endl;
+	std::cout << "send func:" << messg << " from " << getServerUser(fd)->getFd() << " " << getServerUser(fd)->getNickName() << " to " << fd << std::endl;
 	messg += "\r\n";
 	error(send(fd, messg.c_str(), messg.size() + 1, 0), "Couldn't send!", 31);
 }

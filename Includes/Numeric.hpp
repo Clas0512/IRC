@@ -18,7 +18,7 @@ typedef std::pair<std::string, std::string> Numeric;
 #define RPL_NOTOPIC(nick, channel) numeric::makeNumeric("331", channel + " :No topic is set")
 #define RPL_TOPIC(nick, channel, topic) numeric::makeNumeric("332", channel + " :" + topic)
 #define RPL_NAMEREPLY(nick, channel, users) numeric::makeNumeric("353", "= " + channel + " :" + users)
-#define RPL_ENDOFNAMES(nick, channel) numeric::makeNumeric("366", channel + " :End of /NAMES list")
+#define RPL_ENDOFNAMES(nick, channel) numeric::makeNumeric("366", channel + " :End of NAMES list")
 
 //ERR
 #define ERR_NOSUCHNICK(nick) numeric::makeNumeric("401", nick + " :No such nick/channel")
