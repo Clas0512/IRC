@@ -3,6 +3,7 @@
 Channel::Channel(std::string _id, User *_admin, std::string _password) : name(_id), password(_password)
 {
 	this->isHasPass = false;
+	this->operators.push_back(_admin);
 	users.push_back(_admin);
 }
 

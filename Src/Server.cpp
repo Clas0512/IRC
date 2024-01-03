@@ -78,6 +78,7 @@ void Server::start()
 				else if (pollFds[i].revents & POLLIN)
 				{
 					error(recv(pollFds[i].fd, buffer, 1024, MSG_EOF), "Couldn't recieve!", 108);
+					this->currentMessage = buffer;
 					//parseAndAdd(pollFds[i].fd, buffer);
 					std::cout << "fd : " << pollFds[i].fd << " girdi: " << buffer << std::endl;
 					std::string buff = buffer;
@@ -96,8 +97,8 @@ void	Server::parseAndExec(int userFd, std::string buffer)
 	{
 		std::vector<std::string> splitted = split(buff[0], ' ');
 		// ---------------------------------------------------------------------------
-		// for(size_t i = 0; i < splitted.size(); i++)
-		// 	std::cout << << "splitted: "  << splitted[i] << "." << std::endl;
+		for(size_t i = 0; i < splitted.size(); i++)
+			std::cout << "splitted: "  << splitted[i] << "." << std::endl;
 		// ---------------------------------------------------------------------------
 		for(size_t j = 0; j < exec.getCommands().size(); j++)
 		{
@@ -402,13 +403,14 @@ Channel *Server::getServerChannel(std::string name)
 std::string Server::getServerHostName() const { return (hostname); }
 
 std::string Server::getServerPassword() const { return (password); }
+std::string Server::getCurrentMessage() const { return (currentMessage); }
 
 void	Server::createChannel(std::string name, User *admin, std::string password)
 {
 	Channel *tmp = new Channel(name, admin, password);
 	this->serverChannels.push_back(tmp);
 	this->getServerChannel(name)->getOperators().push_back(admin);
-	admin->addChannel(tmp);
+	//admin->addChannel(tmp);
 }
 
 void	Server::joinChannel(std::string channelName, User *user)

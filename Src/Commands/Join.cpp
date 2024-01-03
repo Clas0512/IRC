@@ -11,7 +11,7 @@ static int checkJoin(std::vector<std::string> &splitted, Server *server)
 	return (1);
 }
 
-void Execute::join(int &fd, Server *server, strvector splitted)
+void Execute::join(int &fd, Server *server, strvector splitted) //clientte sonradan giren kullanıcılarda önceki kullanıcılar gözükmüyor!!!
 {
 	User *user = server->getServerUser(fd);
 	int channelId = server->getChannelIndexByName(splitted[1]);
@@ -30,9 +30,9 @@ void Execute::join(int &fd, Server *server, strvector splitted)
 		server->createChannel(splitted[1], user, splitted.size() == 3 ? splitted[2] : "");
 		server->sendMessage(fd, PREFIX(user) + " JOIN " + splitted[1]);
 		server->sendMessage(fd, PREFIX(user) + " MODE " + splitted[1] + " +o " + user->getNickName());
+		user->addChannel(server->getServerChannels()[channelId]);
 		numeric::sendNumeric(RPL_NOTOPIC(user->getNickname(), splitted[1]), user, server);
-		numeric::sendNumeric(RPL_NAMEREPLY(nickname, channelName, nicknames), user, server);
-		numeric::sendNumeric(RPL_ENDOFNAMES(nickname, channelName), user, server);
+		
 		return;
 	}
 	if (server->getServerChannel(splitted[1])->getUser(user->getNickName()) == NULL)
@@ -55,7 +55,7 @@ void Execute::join(int &fd, Server *server, strvector splitted)
 			server->sendMessage(toSend, PREFIX(user) + " JOIN " + splitted[1]);
 		if (i != 0)
 			nicknames += " ";
-		if (i == 0)
+		if (server->getServerChannel(splitted[1])->getOperator(users[i]) != NULL)
 			nicknames += "@";
 		nicknames += users[i]->getNickName();
 	}

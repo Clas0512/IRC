@@ -31,6 +31,7 @@ class Server {
         std::vector<User*>		serverUsers;
         std::vector<Channel*>	serverChannels;
 		std::string				time;
+		std::string				currentMessage;
     public:
         Server(char **av);
         ~Server();
@@ -42,6 +43,7 @@ class Server {
 		Channel*				getServerChannel(std::string name);
         std::string				getServerHostName() const;
 		std::string				getServerPassword() const;
+		std::string				getCurrentMessage() const;
         void					start();
 		void					parseAndAdd(int fd, char *buffer);
 		void					sendMessage(int fd, std::string messg);

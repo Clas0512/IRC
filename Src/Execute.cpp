@@ -9,6 +9,7 @@ Execute::Execute()
     commands.push_back(std::make_pair("CAP", Execute::cap));
     commands.push_back(std::make_pair("PRIVMSG", Execute::privmsg));
     commands.push_back(std::make_pair("TOPIC", Execute::topic));
+	commands.push_back(std::make_pair("PART", Execute::part));
 }
 
 Execute::~Execute()
