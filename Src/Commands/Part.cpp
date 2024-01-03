@@ -17,7 +17,7 @@ void Execute::part(int &fd, Server *server, strvector splitted)
 		}
 		User *tmpUser = server->getServerUser(fd);
 		Channel *tmpChannel = server->getServerChannel(splitted[1]);
-		for (size_t i = 0; i < tmpUser->getChannels().size(); i++)
+		for (size_t i = 0; i < tmpUser->getChannels().size(); i++) //segment yiyo
 		{
 			if (tmpUser->getChannels()[i]->getName() == splitted[1])
 			{
