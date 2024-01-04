@@ -19,11 +19,10 @@ void Execute::part(int &fd, Server *server, strvector splitted)
 		Channel *tmpChannel = server->getServerChannel(splitted[1]);
 		for (size_t i = 0; i < tmpUser->getChannels().size(); i++) //segment yiyo
 		{
+			std::cout << "segmennt" << std::endl;
 			if (tmpUser->getChannels()[i]->getName() == splitted[1])
 			{
-				std::cout << "segmennt" << std::endl;
 				tmpUser->getChannels().erase(tmpUser->getChannels().begin() + i);
-
 			}
 		}
 

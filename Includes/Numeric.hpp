@@ -31,6 +31,7 @@ typedef std::pair<std::string, std::string> Numeric;
 #define ERR_NOTONCHANNEL(channel) numeric::makeNumeric("442", channel + " :You're not on that channel")
 #define ERR_USERONCHANNEL(nick, channel) numeric::makeNumeric("443", nick + " " + channel + " :is already on channel")
 #define ERR_NOTREGISTERED numeric::makeNumeric("451", ":You have not registered")
+#define ERR_NOTEXTTOSEND(cmd) numeric::makeNumeric("412", cmd + ":No text to send")
 #define ERR_NEEDMOREPARAMS(cmd) numeric::makeNumeric("461", cmd + " :Not enough parameters")
 #define ERR_ALREADYREGISTRED numeric::makeNumeric("462", ":Unauthorized command (already registered)")
 #define ERR_PASSWDMISMATCH numeric::makeNumeric("464", ":Password incorrect")
